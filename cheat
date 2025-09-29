@@ -1,329 +1,204 @@
-local Rayfield = loadstring(game:HttpGet('https://[Log in to view URL]'))()
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
-local Window = Rayfield:CreateWindow({
-   Name = "3KS MAINCHEATV2 ",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "3KS...",
-   LoadingSubtitle = "3KS MAINCHEATV2",
-   ShowText = "3KESPIRITO", -- for mobile users to unhide rayfield, change if you'd like
-   Theme = "Dark", -- Check https://[Log in to view URL]
+local player = Players.LocalPlayer
 
-   ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
+local gui = Instance.new("ScreenGui")
+gui.Name = "CustomGUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
 
-   DisableRayfieldPrompts = true,
-   DisableBuildWarnings = true, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 500, 0, 350)
+mainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+mainFrame.Parent = gui
 
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
-      FileName = "3KS"
-   },
+local dragToggle = nil
+local dragInput = nil
+local dragStart = nil
+local startPos = nil
 
-   Discord = {
-      Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "discord.gg/369SHITZ", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
-   },
+local function updateDrag(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
 
-   KeySystem = false, -- Set this to true to use our key system
-   KeySettings = {
-      Title = "3KS GODS",
-      Subtitle = "3KS BABIES",
-      Note = "READY KANA MAG PASABOG!", -- Use this to tell the user how to get a key
-      FileName = "3KESPIRITO", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = "3K-CHEAT" -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-   }
-})
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragToggle = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragToggle = false
+            end
+        end)
+    end
+end)
 
-local MAINTab = Window:CreateTab("3K MAINCHEATV2", 4483362458) -- Title, Image
-local MAINSection = MAINTab:CreateSection("MAIN")
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
 
-Rayfield:Notify({
-   Title = "You executed the script",
-   Content = "",
-   Duration = 5,
-   Image = 13047715178,
-   Actions = { -- Notification Buttons
-      Ignore = {
-         Name = "Okay!",
-         Callback = function()
-         print("!!THE SCRIPTS EXECUTED!!")
-      end
-   },
-},
-})
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragToggle then
+        updateDrag(input)
+    end
+end)
 
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 40)
+topBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+topBar.BorderColor3 = Color3.fromRGB(255, 255, 255)
+topBar.Parent = mainFrame
 
-local Button = MAINTab:CreateButton({
-   Name = "INFINITE YIELD [3KS]",
-   Callback = function()
-       loadstring(game:HttpGet('https://[Log in to view URL]'))()
-   end
-})
+local profileText = Instance.new("TextLabel")
+profileText.Size = UDim2.new(0.5, 0, 1, 0)
+profileText.Position = UDim2.new(0, 10, 0, 0)
+profileText.BackgroundTransparency = 1
+profileText.Text = "Profile: " .. player.Name
+profileText.TextColor3 = Color3.fromRGB(255, 255, 255)
+profileText.Font = Enum.Font.GothamBold
+profileText.TextScaled = true
+profileText.TextXAlignment = Enum.TextXAlignment.Left
+profileText.Parent = topBar
 
-local Button = MAINTab:CreateButton({
-   Name = "MUSIC EXPO [3KS]",
-   Callback = function()
-loadstring(game:HttpGet("https://[Log in to view URL]"))()
-   end,
-})
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Size = UDim2.new(0.5, -10, 1, 0)
+fpsLabel.Position = UDim2.new(0.5, 0, 0, 0)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.Text = "FPS: 0"
+fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+fpsLabel.Font = Enum.Font.GothamBold
+fpsLabel.TextScaled = true
+fpsLabel.TextXAlignment = Enum.TextXAlignment.Right
+fpsLabel.Parent = topBar
 
+local tabsFrame = Instance.new("Frame")
+tabsFrame.Size = UDim2.new(1, 0, 0, 30)
+tabsFrame.Position = UDim2.new(0, 0, 0, 40)
+tabsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+tabsFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+tabsFrame.Parent = mainFrame
 
-local Button = MAINTab:CreateButton({
-   Name = "BIG HEAD [3KS]",
-   Callback = function()
-_G.HeadSize = 4 _G.Disabled = true game:GetService('RunService').RenderStepped:connect(function() if _G.Disabled then for i,v in next, game:GetService('Players'):GetPlayers() do if v.Name ~= game:GetService('Players').LocalPlayer.Name then pcall(function() v.Character.Head.Size = Vector3.new(_G.HeadSize,_G.HeadSize,_G.HeadSize) v.Character.Head.Transparency = 0.4 v.Character.Head.BrickColor = BrickColor.new("Red") v.Character.Head.Material = "Neon" v.Character.Head.CanCollide = false v.Character.Head.Massless = true end) end end end end)
- end,
-})
+local contentFrame = Instance.new("ScrollingFrame")
+contentFrame.Size = UDim2.new(1, 0, 1, -70)
+contentFrame.Position = UDim2.new(0, 0, 0, 70)
+contentFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
+contentFrame.ScrollBarThickness = 6
+contentFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+contentFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+contentFrame.Parent = mainFrame
 
-local Button = MAINTab:CreateButton({
-   Name = "FADED MENU [3KS]",
-   Callback = function()
-_G.Toggles = "Y" -- You can put any keybind
-loadstring(game:HttpGet("https://[Log in to view URL]", true))()
-   end,
-})
+local layout = Instance.new("UIListLayout")
+layout.Parent = contentFrame
+layout.Padding = UDim.new(0, 5)
 
-local Button = MAINTab:CreateButton({
-   Name = "BRING PARTS [3KS]",
-   Callback = function()
-loadstring(game:HttpGet("https://[Log in to view URL]"))("More Scripts: t.me/arceusxscripts")
-   end,
-})
+local function createTabButton(name, posX)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 100, 1, 0)
+    btn.Position = UDim2.new(0, posX, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    btn.BorderColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.Parent = tabsFrame
+    return btn
+end
 
+local roleplayBtn = createTabButton("Roleplay", 0)
+local trollBtn = createTabButton("Troll", 100)
+local gunsBtn = createTabButton("Guns", 200)
 
+local sections = {Roleplay = {}, Troll = {}, Guns = {}}
 
+local function createButton(tab, text, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -10, 0, 40)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.BorderColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.Gotham
+    btn.TextScaled = true
+    btn.Parent = contentFrame
+    btn.MouseButton1Click:Connect(callback)
+    table.insert(sections[tab], btn)
+end
 
-local Button = MAINTab:CreateButton({
-   Name = "TOUCH FLING [3KS]",
-   Callback = function()
-loadstring(game:HttpGet("https://[Log in to view URL]"))()
-   end,
-})
+createButton("Roleplay", "Infinite Yield", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))() end)
+createButton("Roleplay", "ESP", function() print("ESP Activated") end)
+createButton("Roleplay", "Aimbot", function() print("Aimbot Activated") end)
+createButton("Roleplay", "Faded Menu", function() print("Faded Menu Opened") end)
+createButton("Roleplay", "Dex Explorer", function() print("Dex Explorer Opened") end)
+createButton("Roleplay", "Music Expo", function() print("Music Expo Loaded") end)
+createButton("Roleplay", "FPS Booster", function() print("FPS Booster Activated") end)
+createButton("Roleplay", "Big Head", function() print("Big Head Enabled") end)
+createButton("Roleplay", "Bring Parts", function() print("Bring Parts Activated") end)
+createButton("Roleplay", "Hitbox Expander", function() print("Hitbox Expanded") end)
 
+createButton("Troll", "Fling All", function() print("Fling All Players") end)
+createButton("Troll", "Wicked", function() print("Wicked Script Activated") end)
 
-local Button = MAINTab:CreateButton({
-   Name = "HITBOX EXPANDER [3KS]",
-   Callback = function()
-loadstring(game:HttpGet("https://[Log in to view URL]"))()
-   end,
-})
+createButton("Guns", "HK416", function() print("Dupe HK416") end)
+createButton("Guns", "SP", function() print("Dupe SP") end)
+createButton("Guns", "Medkit", function() print("Dupe Medkit") end)
+createButton("Guns", "Desert Eagle", function() print("Dupe Deagle") end)
+createButton("Guns", "Glock-17", function() print("Dupe Glock-17") end)
+createButton("Guns", "Glock-19", function() print("Dupe Glock-19") end)
+createButton("Guns", "AK-47", function() print("Dupe AK-47") end)
+createButton("Guns", "Bandages", function() print("Dupe Bandages") end)
+createButton("Guns", "UZI", function() print("Dupe UZI") end)
 
-local TROLLTab = Window:CreateTab("TROLL", 4483362458) -- Title, Image
-local TROLLSection = TROLLTab:CreateSection("TROLL")
+local function showTab(tabName)
+    for name, buttons in pairs(sections) do
+        for _, b in ipairs(buttons) do
+            b.Visible = (name == tabName)
+        end
+    end
+end
 
-local Button = TROLLTab:CreateButton({
-   Name = "FLING ALL [3KS]",
-   Callback = function()
-loadstring(game:HttpGet("https://[Log in to view URL]"))()
-   end,
-})
+roleplayBtn.MouseButton1Click:Connect(function() showTab("Roleplay") end)
+trollBtn.MouseButton1Click:Connect(function() showTab("Troll") end)
+gunsBtn.MouseButton1Click:Connect(function() showTab("Guns") end)
 
-local Button = TROLLTab:CreateButton({
-   Name = "WICKED [3KS]",
-   Callback = function()
-loadstring(game:HttpGet("https://[Log in to view URL]"))()
-   end,
-})
+showTab("Roleplay")
 
-local SPAWNGUNTab = Window:CreateTab("🔫SPAWN GUN 1KMI$TRA🔫", 4483362458) -- Title, Image
-local SPAWNGUNSection = SPAWNGUNTab:CreateSection("DUPED GUNS [3KS]")
+local lastUpdate = tick()
+local frames = 0
+RunService.RenderStepped:Connect(function()
+    frames = frames + 1
+    if tick() - lastUpdate >= 1 then
+        fpsLabel.Text = "FPS: " .. frames
+        frames = 0
+        lastUpdate = tick()
+    end
+end)
 
--- Rayfield button
-SPAWNGUNTab:CreateButton({
-    Name = "ALL CITY HK416 [3KS]",
-    Callback = function()
-        local args = {
-    [1] = "HK416",
-    [2] = -1000000
-}
+local mobileToggle = Instance.new("TextButton")
+mobileToggle.Size = UDim2.new(0, 80, 0, 25)
+mobileToggle.Position = UDim2.new(0.5, -40, 0, 5)
+mobileToggle.BackgroundTransparency = 1
+mobileToggle.Text = "3KS"
+mobileToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+mobileToggle.Font = Enum.Font.GothamBold
+mobileToggle.TextScaled = true
+mobileToggle.Parent = gui
 
-game:GetService("ReplicatedStorage").GunShop.Events.Purchase:FireServer("HK416", -10000)
-   end,
-})
+mobileToggle.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+end)
 
--- Rayfield button
-SPAWNGUNTab:CreateButton({
-    Name = "ALL CITY SP [3KS]",
-    Callback = function()
-local args = {
-    [1] = "Silenced Pistol",
-    [2] = -1000000
-}
-
-game:GetService("ReplicatedStorage").GunShop.Events.Purchase:FireServer("Silenced Pistol", -10000)
-   end,
-})
-
--- Rayfield button
-SPAWNGUNTab:CreateButton({
-    Name = "ALL CITY MEDKIT [3KS]",
-    Callback = function()
-   local args = {
-    [1] = "MEDKIT",
-    [2] = -1000000
-}
-
-game:GetService("ReplicatedStorage").GunShop.Events.Purchase:FireServer("MEDKIT", -10000)
-   end,
-})
-
-SPAWNGUNTab:CreateButton({
-    Name = "ALL CITY Desert Eagle [3KS]",
-    Callback = function() game:GetService("ReplicatedStorage").GunShop.Events.Purchase:FireServer("Desert Deagle", -10000)
-    end,
-})
--- Rayfield button
-SPAWNGUNTab:CreateButton({
-    Name = "ALL CITY Glock-17 [3KS]",
-    Callback = function()
-        local args = {
-    [1] = "Glock-17",
-    [2] = -1000000
-}
-
-game:GetService("ReplicatedStorage").GunShop.Events.Purchase:FireServer("Glock-17", -10000)
-   end,
- })
-
--- Rayfield button
-SPAWNGUNTab:CreateButton({
-    Name = "ALL CITY Glock-19 [3KS]",
-    Callback = function()
-        local args = {
-    [1] = "Glock-19",
-    [2] = -1000000
-}
-
-game:GetService("ReplicatedStorage").GunShop.Events.Purchase:FireServer("Glock-19", -10000)
-   end,
-})
-
-local Button = MAINTab:CreateButton({
-   Name = "ESP [3KS]",
-   Callback = function()
-    loadstring(game:HttpGet("https://[Log in to view URL]"))()
-   end,
-})
-
--- FPS Booster Button (Rayfield example)
-
-local Button = MAINTab:CreateButton({
-   Name = "BOOST FPS [3KS]",
-   Callback = function()
-       _G.Ignore = {}
-_G.Settings = {
-    Players = {
-        ["Ignore Me"] = true,
-        ["Ignore Others"] = true,
-        ["Ignore Tools"] = true
-    },
-    Meshes = {
-        NoMesh = false,
-        NoTexture = false,
-        Destroy = false
-    },
-    Images = {
-        Invisible = true,
-        Destroy = false
-    },
-    Explosions = {
-        Smaller = true,
-        Invisible = false, -- Not for PVP games
-        Destroy = false -- Not for PVP games
-    },
-    Particles = {
-        Invisible = true,
-        Destroy = false
-    },
-    TextLabels = {
-        LowerQuality = true,
-        Invisible = false,
-        Destroy = false
-    },
-    MeshParts = {
-        LowerQuality = true,
-        Invisible = false,
-        NoTexture = false,
-        NoMesh = false,
-        Destroy = false
-    },
-    Other = {
-        ["FPS Cap"] = 240, -- true to uncap
-        ["No Camera Effects"] = true,
-        ["No Clothes"] = true,
-        ["Low Water Graphics"] = true,
-        ["No Shadows"] = true,
-        ["Low Rendering"] = true,    
-        ["Low Quality Parts"] = true,
-        ["Low Quality Models"] = true,
-        ["Reset Materials"] = true,
-    }
-}
-loadstring(game:HttpGet("https://[Log in to view URL]"))()
-   end
-})
-
--- Rayfield button
-SPAWNGUNTab:CreateButton({
-    Name = "ALL CITY AK-47 [3KS]",
-    Callback = function()
-        local args = {
-    [1] = "AK-47",
-    [2] = -1000000
-}
-
-game:GetService("ReplicatedStorage").GunShop.Events.Purchase:FireServer("AK-47", -10000)
-   end,
-})
-
--- Rayfield button
-SPAWNGUNTab:CreateButton({
-    Name = "ALL CITY BANDAGES [3KS]",
-    Callback = function()
-        local args = {
-    [1] = "BANDAGES",
-    [2] = -1000000
-}
-
-game:GetService("ReplicatedStorage").GunShop.Events.Purchase:FireServer("BANDAGES", -10000)
-   end,
-})
-
-local Button = MAINTab:CreateButton({
-   Name = "DEX EXPLORER [3KS]",
-   Callback = function()
-loadstring(game:HttpGet('https://[Log in to view URL]'))()
-   end
-})
-
--- Rayfield button
-SPAWNGUNTab:CreateButton({
-    Name = "ALL CITY UZI [3KS]",
-    Callback = function()
-        local args = {
-    [1] = "UZI",
-    [2] = -1000000
-}
-
-game:GetService("ReplicatedStorage").GunShop.Events.Purchase:FireServer("UZI", -10000)
-   end,
-})
-
-local FANTab = Window:CreateTab("TUROK SA FANTASMA", 4483362458) -- Title, Image
-local FANSection = FANTab:CreateSection("FANSTAMA CHEAT")
-
-local Button = FANTab:CreateButton({
-   Name = "AIMBOT [3KS]",
-   Callback = function()
-loadstring(game:HttpGet("https://[Log in to view URL]"))()
-   end
-})local Button = MAINTab:CreateButton({
-   Name = "AIMBOT [3KS]",
-   Callback = function()
-local Aimbot = loadstring(game:HttpGet("https://[Log in to view URL]"))()
-Aimbot.Load()
-   end
-})
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.K then
+        mainFrame.Visible = not mainFrame.Visible
+    end
+end)
