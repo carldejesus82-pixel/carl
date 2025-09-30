@@ -1,130 +1,100 @@
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
 
--- COVER FRAME
-local cover = Instance.new("Frame")
-cover.Size = UDim2.new(1,0,1,0)
-cover.Position = UDim2.new(0,0,0,0)
-cover.BackgroundColor3 = Color3.new(0,0,0)
-cover.BorderSizePixel = 0
-cover.ZIndex = 10
-cover.Parent = playerGui
-
-local coverImage = Instance.new("ImageLabel")
-coverImage.Size = UDim2.new(1,0,1,0)
-coverImage.BackgroundTransparency = 1
-coverImage.Image = "rbxassetid://133949947924437"
-coverImage.Parent = cover
-
-local coverStroke = Instance.new("UIStroke")
-coverStroke.Thickness = 3
-coverStroke.Color = Color3.new(1,1,1)
-coverStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-coverStroke.Parent = cover
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1,0,0.1,0)
-title.Position = UDim2.new(0,0,0,0)
-title.Text = "KAZO MENU"
-title.TextScaled = true
-title.Font = Enum.Font.SourceSansBold
-title.TextColor3 = Color3.new(1,1,1)
-title.BackgroundTransparency = 1
-title.Parent = cover
-
-local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(0.2,0,0.05,0)
-fpsLabel.Position = UDim2.new(0.8,0,0.95,0)
-fpsLabel.TextScaled = true
-fpsLabel.TextColor3 = Color3.new(1,1,1)
-fpsLabel.BackgroundTransparency = 1
-fpsLabel.Text = "FPS: 0"
-fpsLabel.Parent = cover
-
-local percentLabel = Instance.new("TextLabel")
-percentLabel.Size = UDim2.new(0.3,0,0.05,0)
-percentLabel.Position = UDim2.new(0.35,0,0.85,0)
-percentLabel.Text = "0%"
-percentLabel.TextScaled = true
-percentLabel.TextColor3 = Color3.new(1,1,1)
-percentLabel.BackgroundTransparency = 1
-percentLabel.Parent = cover
-
-local barBack = Instance.new("Frame")
-barBack.Size = UDim2.new(0.3,0,0.015,0)
-barBack.Position = UDim2.new(0.35,0,0.80,0)
-barBack.BackgroundColor3 = Color3.fromRGB(80,80,80)
-barBack.BorderSizePixel = 0
-barBack.Parent = cover
-Instance.new("UICorner", barBack)
-
-local barFill = Instance.new("Frame")
-barFill.Size = UDim2.new(0,0,1,0)
-barFill.BackgroundColor3 = Color3.new(1,1,1)
-barFill.BorderSizePixel = 0
-barFill.Parent = barBack
-Instance.new("UICorner", barFill)
-
-local profile = Instance.new("ImageLabel")
-profile.Size = UDim2.new(0.05,0,0.1,0)
-profile.Position = UDim2.new(0.25,0,0.78,0)
-profile.BackgroundTransparency = 1
-pcall(function()
-	profile.Image = game.Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
-end)
-profile.Parent = cover
-
-local lastUpdate = tick()
-local frames = 0
-RunService.RenderStepped:Connect(function()
-	frames += 1
-	if tick() - lastUpdate >= 1 then
-		fpsLabel.Text = "FPS: "..frames
-		frames = 0
-		lastUpdate = tick()
-	end
-end)
-
-local tweenInfo = TweenInfo.new(20, Enum.EasingStyle.Linear)
-local barTween = TweenService:Create(barFill, tweenInfo, {Size = UDim2.new(1,0,1,0)})
-barTween:Play()
-
-local startTime = tick()
-task.spawn(function()
-	while tick() - startTime < 20 do
-		local percent = math.floor((tick() - startTime)/20*100)
-		percentLabel.Text = percent.."%"
-		task.wait(0.05)
-	end
-	cover:Destroy()
-end)
+local screengui = Instance.new("ScreenGui")
+screengui.Name = "KAZO_UI"
+screengui.IgnoreGuiInset = true
+screengui.Parent = player:WaitForChild("PlayerGui")
 
 -- MAIN GUI
 local mainGui = Instance.new("Frame")
-mainGui.Size = UDim2.new(0.6,0,0.6,0)
-mainGui.Position = UDim2.new(0.2,0,0.2,0)
-mainGui.BackgroundColor3 = Color3.new(0,0,0)
+mainGui.Size = UDim2.new(0.6,0,0.7,0)
+mainGui.Position = UDim2.new(0.2,0,0.15,0)
+mainGui.BackgroundColor3 = Color3.fromRGB(0,0,0)
 mainGui.Visible = false
-mainGui.ZIndex = 11
-mainGui.Parent = playerGui
-Instance.new("UICorner", mainGui)
+mainGui.Parent = screengui
 
-local mainStroke = Instance.new("UIStroke")
-mainStroke.Thickness = 3
-mainStroke.Color = Color3.new(1,1,1)
-mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-mainStroke.Parent = mainGui
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 3
+stroke.Color = Color3.new(1,1,1)
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+stroke.Parent = mainGui
 
-local drag = Instance.new("Frame")
-drag.Size = UDim2.new(1,0,0.1,0)
-drag.BackgroundTransparency = 1
-drag.Parent = mainGui
+-- TOP BAR
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0.1,0)
+topBar.BackgroundColor3 = Color3.fromRGB(0,0,0)
+topBar.Parent = mainGui
+
+local topTitle = Instance.new("TextLabel")
+topTitle.Size = UDim2.new(0.6,0,1,0)
+topTitle.Position = UDim2.new(0.2,0,0,0)
+topTitle.Text = "KAZO MENU"
+topTitle.TextScaled = true
+topTitle.Font = Enum.Font.SourceSansBold
+topTitle.TextColor3 = Color3.new(1,1,1)
+topTitle.BackgroundTransparency = 1
+topTitle.Parent = topBar
+
+local avatarThumb = Instance.new("ImageLabel")
+avatarThumb.Size = UDim2.new(0.08,0,0.8,0)
+avatarThumb.Position = UDim2.new(0.01,0,0.1,0)
+avatarThumb.BackgroundTransparency = 1
+local thumb = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+avatarThumb.Image = thumb
+avatarThumb.Parent = topBar
+
+local fpsLabelTop = Instance.new("TextLabel")
+fpsLabelTop.Size = UDim2.new(0.15,0,1,0)
+fpsLabelTop.Position = UDim2.new(0.85,0,0,0)
+fpsLabelTop.Text = "FPS: 0"
+fpsLabelTop.TextScaled = true
+fpsLabelTop.Font = Enum.Font.SourceSans
+fpsLabelTop.TextColor3 = Color3.new(1,1,1)
+fpsLabelTop.BackgroundTransparency = 1
+fpsLabelTop.Parent = topBar
+
+-- Update FPS
+RunService.RenderStepped:Connect(function()
+	fpsLabelTop.Text = "FPS: "..tostring(math.floor(1/RunService.RenderStepped:Wait()))
+end)
+
+-- SCROLLABLE TABS
+local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
+local tabFrame = Instance.new("ScrollingFrame")
+tabFrame.Size = UDim2.new(1,0,0.1,0)
+tabFrame.Position = UDim2.new(0,0,0.15,0)
+tabFrame.BackgroundTransparency = 1
+tabFrame.ScrollBarThickness = 6
+tabFrame.CanvasSize = UDim2.new(0.23 * #tabNames,0,0,0)
+tabFrame.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
+tabFrame.ScrollBarImageTransparency = 0.5
+tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.X
+tabFrame.Parent = mainGui
+
+for i, name in ipairs(tabNames) do
+	local tab = Instance.new("TextButton")
+	tab.Size = UDim2.new(0.22,0,1,0)
+	tab.Position = UDim2.new(0.23*(i-1),0,0,0)
+	tab.Text = name
+	tab.TextScaled = true
+	tab.BackgroundColor3 = Color3.fromRGB(30,30,30)
+	tab.TextColor3 = Color3.new(1,1,1)
+	tab.Parent = tabFrame
+end
+
+-- DRAGGING WHOLE MAIN GUI
 local dragging = false
 local dragInput, mousePos, framePos
-drag.InputBegan:Connect(function(input)
+
+local function update(input)
+	local delta = input.Position - mousePos
+	mainGui.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+end
+
+mainGui.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		dragging = true
 		mousePos = input.Position
@@ -136,46 +106,113 @@ drag.InputBegan:Connect(function(input)
 		end)
 	end
 end)
-drag.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
-		local delta = input.Position - mousePos
-		mainGui.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+
+mainGui.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
 	end
 end)
 
-local topbar = Instance.new("TextLabel")
-topbar.Size = UDim2.new(1,0,0.1,0)
-topbar.Text = "KAZO MENU"
-topbar.TextScaled = true
-topbar.Font = Enum.Font.SourceSansBold
-topbar.BackgroundColor3 = Color3.new(0,0,0)
-topbar.TextColor3 = Color3.new(1,1,1)
-topbar.Parent = mainGui
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
 
-local profileSmall = profile:Clone()
-profileSmall.Size = UDim2.new(0.1,0,1,0)
-profileSmall.Position = UDim2.new(0,0,0,0)
-profileSmall.Parent = topbar
-
-local fpsSmall = fpsLabel:Clone()
-fpsSmall.Size = UDim2.new(0.2,0,1,0)
-fpsSmall.Position = UDim2.new(0.12,0,0,0)
-fpsSmall.Parent = topbar
-
-local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
-for i, name in ipairs(tabNames) do
-	local tab = Instance.new("TextButton")
-	tab.Size = UDim2.new(0.22,0,0.1,0)
-	tab.Position = UDim2.new(0.05 + (i-1)*0.23,0,0.2,0)
-	tab.Text = name
-	tab.TextScaled = true
-	tab.BackgroundColor3 = Color3.fromRGB(30,30,30)
-	tab.TextColor3 = Color3.new(1,1,1)
-	tab.Parent = mainGui
-end
-
+-- TOGGLE GUI WITH K
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if not gpe and input.KeyCode == Enum.KeyCode.K then
 		mainGui.Visible = not mainGui.Visible
 	end
+end)
+
+-- COVER FRAME
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(1,0,1,0)
+frame.Position = UDim2.new(0,0,0,0)
+frame.BackgroundColor3 = Color3.new(0,0,0)
+frame.BorderSizePixel = 4
+frame.BorderColor3 = Color3.new(1,1,1)
+frame.Parent = screengui
+
+local img = Instance.new("ImageLabel")
+img.Size = UDim2.new(1,0,1,0)
+img.BackgroundTransparency = 1
+img.Image = "rbxassetid://133949947924437"
+img.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0.1,0)
+title.Position = UDim2.new(0,0,0,0)
+title.Text = "KAZO MENU"
+title.TextScaled = true
+title.Font = Enum.Font.SourceSansBold
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+title.Parent = frame
+
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Size = UDim2.new(0.2,0,0.05,0)
+fpsLabel.Position = UDim2.new(0.8,0,0.95,0)
+fpsLabel.Text = "FPS: 0"
+fpsLabel.TextScaled = true
+fpsLabel.Font = Enum.Font.SourceSans
+fpsLabel.TextColor3 = Color3.new(1,1,1)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.Parent = frame
+
+local avatar = Instance.new("ImageLabel")
+avatar.Size = UDim2.new(0.1,0,0.2,0)
+avatar.Position = UDim2.new(0.05,0,0.7,0)
+avatar.BackgroundTransparency = 1
+local thumb = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+avatar.Image = thumb
+avatar.Parent = frame
+
+local percentLabel = Instance.new("TextLabel")
+percentLabel.Size = UDim2.new(0.2,0,0.05,0)
+percentLabel.Position = UDim2.new(0.4,0,0.85,0)
+percentLabel.Text = "0%"
+percentLabel.TextScaled = true
+percentLabel.Font = Enum.Font.SourceSansBold
+percentLabel.TextColor3 = Color3.new(1,1,1)
+percentLabel.BackgroundTransparency = 1
+percentLabel.Parent = frame
+
+local barContainer = Instance.new("Frame")
+barContainer.Size = UDim2.new(0.4,0,0.015,0)
+barContainer.Position = UDim2.new(0.3,0,0.82,0)
+barContainer.BackgroundColor3 = Color3.fromRGB(80,80,80)
+barContainer.BorderSizePixel = 0
+barContainer.Parent = frame
+local barCorner = Instance.new("UICorner")
+barCorner.Parent = barContainer
+
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(0,0,1,0)
+bar.BackgroundColor3 = Color3.new(1,1,1)
+bar.BorderSizePixel = 0
+bar.Parent = barContainer
+local barFillCorner = Instance.new("UICorner")
+barFillCorner.Parent = bar
+
+local last = tick()
+local count = 0
+RunService.RenderStepped:Connect(function()
+	count += 1
+	if tick() - last >= 1 then
+		fpsLabel.Text = "FPS: "..tostring(count)
+		count = 0
+		last = tick()
+	end
+end)
+
+task.spawn(function()
+	for i = 1, 100 do
+		bar.Size = UDim2.new(i/100,0,1,0)
+		percentLabel.Text = i.."%"
+		task.wait(0.2)
+	end
+	frame:Destroy()
+	mainGui.Visible = true
 end)
