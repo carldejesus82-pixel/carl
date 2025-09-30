@@ -1,34 +1,26 @@
---// CONFIG
-local REMOTE_SCRIPT_URL = "https://raw.githubusercontent.com/Ace7836-hash/Mk/refs/heads/main/script.lua.lua"
-
---// SERVICES
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
---// SCREEN GUI
 local screengui = Instance.new("ScreenGui")
 screengui.Name = "KAZO_UI"
+screengui.IgnoreGuiInset = true
 screengui.Parent = player:WaitForChild("PlayerGui")
 
---// FULL FRAME COVER
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(1,0,1,0)
 frame.Position = UDim2.new(0,0,0,0)
 frame.BackgroundColor3 = Color3.new(0,0,0)
 frame.BorderSizePixel = 4
-frame.BorderColor3 = Color3.new(1,1,1) -- white outline
+frame.BorderColor3 = Color3.new(1,1,1)
 frame.Parent = screengui
 
--- IMAGE BACKGROUND
 local img = Instance.new("ImageLabel")
 img.Size = UDim2.new(1,0,1,0)
 img.BackgroundTransparency = 1
 img.Image = "rbxassetid://133949947924437"
 img.Parent = frame
 
--- TITLE (TOP CENTER)
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0.1,0)
 title.Position = UDim2.new(0,0,0,0)
@@ -39,7 +31,6 @@ title.TextColor3 = Color3.new(1,1,1)
 title.BackgroundTransparency = 1
 title.Parent = frame
 
--- FPS (BOTTOM RIGHT)
 local fpsLabel = Instance.new("TextLabel")
 fpsLabel.Size = UDim2.new(0.2,0,0.05,0)
 fpsLabel.Position = UDim2.new(0.8,0,0.95,0)
@@ -50,16 +41,14 @@ fpsLabel.TextColor3 = Color3.new(1,1,1)
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.Parent = frame
 
--- AVATAR (BOTTOM LEFT near bar)
 local avatar = Instance.new("ImageLabel")
 avatar.Size = UDim2.new(0.1,0,0.2,0)
 avatar.Position = UDim2.new(0.05,0,0.7,0)
 avatar.BackgroundTransparency = 1
-local thumb, isReady = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+local thumb = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 avatar.Image = thumb
 avatar.Parent = frame
 
--- PERCENT (BOTTOM CENTER)
 local percentLabel = Instance.new("TextLabel")
 percentLabel.Size = UDim2.new(0.2,0,0.05,0)
 percentLabel.Position = UDim2.new(0.4,0,0.85,0)
@@ -70,26 +59,19 @@ percentLabel.TextColor3 = Color3.new(1,1,1)
 percentLabel.BackgroundTransparency = 1
 percentLabel.Parent = frame
 
--- PROGRESS BAR (UIScale)
 local barContainer = Instance.new("Frame")
-barContainer.Size = UDim2.new(0.4,0,0.015,0) -- manipis
+barContainer.Size = UDim2.new(0.4,0,0.015,0)
 barContainer.Position = UDim2.new(0.3,0,0.82,0)
 barContainer.BackgroundColor3 = Color3.fromRGB(255,255,255)
 barContainer.BorderSizePixel = 0
 barContainer.Parent = frame
 
-local barScale = Instance.new("UIScale")
-barScale.Scale = 1
-barScale.Parent = barContainer
-
 local bar = Instance.new("Frame")
 bar.Size = UDim2.new(0,0,1,0)
-bar.Position = UDim2.new(0,0,0,0)
 bar.BackgroundColor3 = Color3.new(1,1,1)
 bar.BorderSizePixel = 0
 bar.Parent = barContainer
 
--- FPS Update
 local last = tick()
 local count = 0
 RunService.RenderStepped:Connect(function()
@@ -101,28 +83,37 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- Progress Fill + Percent
 task.spawn(function()
 	for i = 1, 100 do
 		bar.Size = UDim2.new(i/100,0,1,0)
 		percentLabel.Text = i.."%"
-		task.wait(0.2) -- total ~20s
+		task.wait(0.2)
 	end
-	
+
 	frame:Destroy()
-	
-	-- AFTER LOADING, SHOW MAIN GUI
+
 	local mainGui = Instance.new("Frame")
-	mainGui.Size = UDim2.new(0.5,0,0.6,0)
-	mainGui.Position = UDim2.new(0.25,0,0.2,0)
+	mainGui.Size = UDim2.new(0.6,0,0.7,0)
+	mainGui.Position = UDim2.new(0.2,0,0.15,0)
 	mainGui.BackgroundColor3 = Color3.fromRGB(0,0,0)
-	mainGui.BorderSizePixel = 2
-	mainGui.BorderColor3 = Color3.new(1,1,1)
 	mainGui.Parent = screengui
 	mainGui.Active = true
 	mainGui.Draggable = true
-	
-	-- TOPBAR
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 3
+	stroke.Color = Color3.new(1,1,1)
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Parent = mainGui
+
+	local gradient = Instance.new("UIGradient")
+	gradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.new(1,1,1)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(200,200,200))
+	}
+	gradient.Rotation = 90
+	gradient.Parent = stroke
+
 	local topBar = Instance.new("TextLabel")
 	topBar.Size = UDim2.new(1,0,0.1,0)
 	topBar.BackgroundColor3 = Color3.fromRGB(0,0,0)
@@ -131,24 +122,21 @@ task.spawn(function()
 	topBar.Font = Enum.Font.SourceSansBold
 	topBar.TextColor3 = Color3.new(1,1,1)
 	topBar.Parent = mainGui
-	
-	-- Player Avatar sa top left
+
 	local avatar2 = avatar:Clone()
 	avatar2.Size = UDim2.new(0,40,0,40)
 	avatar2.Position = UDim2.new(0,5,0,5)
 	avatar2.Parent = mainGui
-	
-	-- FPS sa top right
+
 	local fpsLabel2 = fpsLabel:Clone()
 	fpsLabel2.Size = UDim2.new(0.2,0,0.1,0)
 	fpsLabel2.Position = UDim2.new(0.8,0,0,0)
 	fpsLabel2.Parent = mainGui
-	
+
 	RunService.RenderStepped:Connect(function()
 		fpsLabel2.Text = fpsLabel.Text
 	end)
-	
-	-- Tabs
+
 	local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
 	for i, name in ipairs(tabNames) do
 		local tab = Instance.new("TextButton")
@@ -160,10 +148,4 @@ task.spawn(function()
 		tab.TextColor3 = Color3.new(1,1,1)
 		tab.Parent = mainGui
 	end
-	
-	-- Run remote script
-	local suc, res = pcall(function()
-		loadstring(game:HttpGet(REMOTE_SCRIPT_URL))()
-	end)
-	if not suc then warn("Failed to load remote script:",res) end
 end)
