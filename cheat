@@ -83,10 +83,20 @@ for i, tabName in ipairs(tabs) do
     frame.Position = UDim2.new(0, 5, 0, 70)
     frame.BackgroundTransparency = 1
     frame.BorderSizePixel = 0
-    frame.CanvasSize = UDim2.new(0, 0, 10, 0)
+    frame.CanvasSize = UDim2.new(0, 0, 0, 0)
     frame.ScrollBarThickness = 8
     frame.Visible = false
     frame.Parent = mainFrame
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 5)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = frame
+
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        frame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+    end)
+
     tabFrames[tabName] = frame
 
     tabBtn.MouseButton1Click:Connect(function()
@@ -94,14 +104,13 @@ for i, tabName in ipairs(tabs) do
     end)
 end
 
-switchTab("Roleplay") -- default tab
+switchTab("Roleplay")
 
 -- Helper: Create Button
 local function createButton(tab, text, callback)
     local frame = tabFrames[tab]
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.95, 0, 0, 35)
-    btn.Position = UDim2.new(0.025, 0, 0, #frame:GetChildren() * 40)
     btn.Text = text
     btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -111,7 +120,7 @@ local function createButton(tab, text, callback)
     btn.MouseButton1Click:Connect(callback)
 end
 
--- Roleplay Tab
+-- Roleplay Buttons
 createButton("Roleplay", "Infinite Yield", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 end)
@@ -127,11 +136,11 @@ createButton("Roleplay", "Touch Fling", function() print("Touch Fling Enabled") 
 createButton("Roleplay", "Hitbox Expander", function() print("Hitbox Expander On") end)
 createButton("Roleplay", "Bring Parts", function() print("Bring Parts Done") end)
 
--- Troll Tab
+-- Troll Buttons
 createButton("Troll", "Fling All", function() print("Fling All Activated") end)
 createButton("Troll", "Wicked Menu", function() print("Wicked Menu Loaded") end)
 
--- Guns Tab
+-- Guns Buttons
 createButton("Guns", "HK416", function() print("Give HK416") end)
 createButton("Guns", "SP", function() print("Give SP") end)
 createButton("Guns", "Medkit", function() print("Give Medkit") end)
