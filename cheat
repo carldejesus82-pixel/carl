@@ -8,124 +8,6 @@ screengui.Name = "KAZO_UI"
 screengui.IgnoreGuiInset = true
 screengui.Parent = player:WaitForChild("PlayerGui")
 
--- MAIN GUI
-local mainGui = Instance.new("Frame")
-mainGui.Size = UDim2.new(0.6,0,0.7,0)
-mainGui.Position = UDim2.new(0.2,0,0.15,0)
-mainGui.BackgroundColor3 = Color3.fromRGB(0,0,0)
-mainGui.Visible = false
-mainGui.Parent = screengui
-
-local stroke = Instance.new("UIStroke")
-stroke.Thickness = 3
-stroke.Color = Color3.new(1,1,1)
-stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-stroke.Parent = mainGui
-
--- TOP BAR
-local topBar = Instance.new("Frame")
-topBar.Size = UDim2.new(1,0,0.1,0)
-topBar.BackgroundColor3 = Color3.fromRGB(0,0,0)
-topBar.Parent = mainGui
-
-local topTitle = Instance.new("TextLabel")
-topTitle.Size = UDim2.new(0.6,0,1,0)
-topTitle.Position = UDim2.new(0.2,0,0,0)
-topTitle.Text = "KAZO MENU"
-topTitle.TextScaled = true
-topTitle.Font = Enum.Font.SourceSansBold
-topTitle.TextColor3 = Color3.new(1,1,1)
-topTitle.BackgroundTransparency = 1
-topTitle.Parent = topBar
-
-local avatarThumb = Instance.new("ImageLabel")
-avatarThumb.Size = UDim2.new(0.08,0,0.8,0)
-avatarThumb.Position = UDim2.new(0.01,0,0.1,0)
-avatarThumb.BackgroundTransparency = 1
-local thumb = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-avatarThumb.Image = thumb
-avatarThumb.Parent = topBar
-
-local fpsLabelTop = Instance.new("TextLabel")
-fpsLabelTop.Size = UDim2.new(0.15,0,1,0)
-fpsLabelTop.Position = UDim2.new(0.85,0,0,0)
-fpsLabelTop.Text = "FPS: 0"
-fpsLabelTop.TextScaled = true
-fpsLabelTop.Font = Enum.Font.SourceSans
-fpsLabelTop.TextColor3 = Color3.new(1,1,1)
-fpsLabelTop.BackgroundTransparency = 1
-fpsLabelTop.Parent = topBar
-
--- Update FPS
-RunService.RenderStepped:Connect(function()
-	fpsLabelTop.Text = "FPS: "..tostring(math.floor(1/RunService.RenderStepped:Wait()))
-end)
-
--- SCROLLABLE TABS
-local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
-local tabFrame = Instance.new("ScrollingFrame")
-tabFrame.Size = UDim2.new(1,0,0.1,0)
-tabFrame.Position = UDim2.new(0,0,0.15,0)
-tabFrame.BackgroundTransparency = 1
-tabFrame.ScrollBarThickness = 6
-tabFrame.CanvasSize = UDim2.new(0.23 * #tabNames,0,0,0)
-tabFrame.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
-tabFrame.ScrollBarImageTransparency = 0.5
-tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.X
-tabFrame.Parent = mainGui
-
-for i, name in ipairs(tabNames) do
-	local tab = Instance.new("TextButton")
-	tab.Size = UDim2.new(0.22,0,1,0)
-	tab.Position = UDim2.new(0.23*(i-1),0,0,0)
-	tab.Text = name
-	tab.TextScaled = true
-	tab.BackgroundColor3 = Color3.fromRGB(30,30,30)
-	tab.TextColor3 = Color3.new(1,1,1)
-	tab.Parent = tabFrame
-end
-
--- DRAGGING WHOLE MAIN GUI
-local dragging = false
-local dragInput, mousePos, framePos
-
-local function update(input)
-	local delta = input.Position - mousePos
-	mainGui.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
-end
-
-mainGui.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		mousePos = input.Position
-		framePos = mainGui.Position
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-mainGui.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		update(input)
-	end
-end)
-
--- TOGGLE GUI WITH K
-UserInputService.InputBegan:Connect(function(input, gpe)
-	if not gpe and input.KeyCode == Enum.KeyCode.K then
-		mainGui.Visible = not mainGui.Visible
-	end
-end)
-
 -- COVER FRAME
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(1,0,1,0)
@@ -207,6 +89,125 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
+-- MAIN GUI
+local mainGui = Instance.new("Frame")
+mainGui.Size = UDim2.new(0.6,0,0.7,0)
+mainGui.Position = UDim2.new(0.2,0,0.15,0)
+mainGui.BackgroundColor3 = Color3.fromRGB(0,0,0)
+mainGui.Visible = false
+mainGui.Parent = screengui
+
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 3
+stroke.Color = Color3.new(1,1,1)
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+stroke.Parent = mainGui
+
+-- TOP BAR
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0.1,0)
+topBar.BackgroundColor3 = Color3.fromRGB(0,0,0)
+topBar.Parent = mainGui
+
+local topTitle = Instance.new("TextLabel")
+topTitle.Size = UDim2.new(0.6,0,1,0)
+topTitle.Position = UDim2.new(0.2,0,0,0)
+topTitle.Text = "KAZO MENU"
+topTitle.TextScaled = true
+topTitle.Font = Enum.Font.SourceSansBold
+topTitle.TextColor3 = Color3.new(1,1,1)
+topTitle.BackgroundTransparency = 1
+topTitle.Parent = topBar
+
+local avatarThumbTop = Instance.new("ImageLabel")
+avatarThumbTop.Size = UDim2.new(0.08,0,0.8,0)
+avatarThumbTop.Position = UDim2.new(0.01,0,0.1,0)
+avatarThumbTop.BackgroundTransparency = 1
+avatarThumbTop.Image = thumb
+avatarThumbTop.Parent = topBar
+
+local fpsLabelTop = Instance.new("TextLabel")
+fpsLabelTop.Size = UDim2.new(0.15,0,1,0)
+fpsLabelTop.Position = UDim2.new(0.85,0,0,0)
+fpsLabelTop.Text = "FPS: 0"
+fpsLabelTop.TextScaled = true
+fpsLabelTop.Font = Enum.Font.SourceSans
+fpsLabelTop.TextColor3 = Color3.new(1,1,1)
+fpsLabelTop.BackgroundTransparency = 1
+fpsLabelTop.Parent = topBar
+
+RunService.RenderStepped:Connect(function()
+	fpsLabelTop.Text = "FPS: "..tostring(math.floor(1/RunService.RenderStepped:Wait()))
+end)
+
+-- SCROLLABLE TABS
+local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
+local tabFrame = Instance.new("ScrollingFrame")
+tabFrame.Size = UDim2.new(1,0,0.1,0)
+tabFrame.Position = UDim2.new(0,0,0.15,0)
+tabFrame.BackgroundTransparency = 1
+tabFrame.ScrollBarThickness = 6
+tabFrame.CanvasSize = UDim2.new(0.23 * #tabNames,0,0,0)
+tabFrame.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
+tabFrame.ScrollBarImageTransparency = 0.5
+tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.X
+tabFrame.Parent = mainGui
+
+for i, name in ipairs(tabNames) do
+	local tab = Instance.new("TextButton")
+	tab.Size = UDim2.new(0.22,0,1,0)
+	tab.Position = UDim2.new(0.23*(i-1),0,0,0)
+	tab.Text = name
+	tab.TextScaled = true
+	tab.BackgroundColor3 = Color3.fromRGB(30,30,30)
+	tab.TextColor3 = Color3.new(1,1,1)
+	tab.Parent = tabFrame
+end
+
+-- DRAGGING MAIN GUI (PC + Mobile)
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	mainGui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+mainGui.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainGui.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+mainGui.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+
+-- TOGGLE GUI WITH K
+UserInputService.InputBegan:Connect(function(input, gpe)
+	if not gpe and input.KeyCode == Enum.KeyCode.K then
+		mainGui.Visible = not mainGui.Visible
+	end
+end)
+
+-- PROGRESS BAR LOGIC
 task.spawn(function()
 	for i = 1, 100 do
 		bar.Size = UDim2.new(i/100,0,1,0)
