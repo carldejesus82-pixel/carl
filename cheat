@@ -2,26 +2,28 @@ local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
+-- COVER FRAME
 local cover = Instance.new("Frame")
 cover.Size = UDim2.new(1,0,1,0)
 cover.Position = UDim2.new(0,0,0,0)
 cover.BackgroundColor3 = Color3.new(0,0,0)
-cover.BackgroundTransparency = 0
 cover.BorderSizePixel = 0
+cover.ZIndex = 10
 cover.Parent = playerGui
 
-local image = Instance.new("ImageLabel")
-image.Size = UDim2.new(1,0,1,0)
-image.BackgroundTransparency = 1
-image.Image = "rbxassetid://133949947924437"
-image.Parent = cover
+local coverImage = Instance.new("ImageLabel")
+coverImage.Size = UDim2.new(1,0,1,0)
+coverImage.BackgroundTransparency = 1
+coverImage.Image = "rbxassetid://133949947924437"
+coverImage.Parent = cover
 
-local coverUIStroke = Instance.new("UIStroke")
-coverUIStroke.Thickness = 3
-coverUIStroke.Color = Color3.fromRGB(255,255,255)
-coverUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-coverUIStroke.Parent = cover
+local coverStroke = Instance.new("UIStroke")
+coverStroke.Thickness = 3
+coverStroke.Color = Color3.new(1,1,1)
+coverStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+coverStroke.Parent = cover
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0.1,0)
@@ -61,7 +63,7 @@ Instance.new("UICorner", barBack)
 
 local barFill = Instance.new("Frame")
 barFill.Size = UDim2.new(0,0,1,0)
-barFill.BackgroundColor3 = Color3.fromRGB(255,255,255)
+barFill.BackgroundColor3 = Color3.new(1,1,1)
 barFill.BorderSizePixel = 0
 barFill.Parent = barBack
 Instance.new("UICorner", barFill)
@@ -86,49 +88,56 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
+local tweenInfo = TweenInfo.new(20, Enum.EasingStyle.Linear)
+local barTween = TweenService:Create(barFill, tweenInfo, {Size = UDim2.new(1,0,1,0)})
+barTween:Play()
+
+local startTime = tick()
 task.spawn(function()
-	for i = 1,100 do
-		percentLabel.Text = i.."%"
-		barFill.Size = UDim2.new(i/100,0,1,0)
-		task.wait(0.2)
+	while tick() - startTime < 20 do
+		local percent = math.floor((tick() - startTime)/20*100)
+		percentLabel.Text = percent.."%"
+		task.wait(0.05)
 	end
 	cover:Destroy()
 end)
 
+-- MAIN GUI
 local mainGui = Instance.new("Frame")
 mainGui.Size = UDim2.new(0.6,0,0.6,0)
 mainGui.Position = UDim2.new(0.2,0,0.2,0)
-mainGui.BackgroundColor3 = Color3.fromRGB(0,0,0)
+mainGui.BackgroundColor3 = Color3.new(0,0,0)
 mainGui.Visible = false
+mainGui.ZIndex = 11
 mainGui.Parent = playerGui
 Instance.new("UICorner", mainGui)
 
-local mainUIStroke = Instance.new("UIStroke")
-mainUIStroke.Thickness = 3
-mainUIStroke.Color = Color3.fromRGB(255,255,255)
-mainUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-mainUIStroke.Parent = mainGui
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Thickness = 3
+mainStroke.Color = Color3.new(1,1,1)
+mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+mainStroke.Parent = mainGui
 
 local drag = Instance.new("Frame")
 drag.Size = UDim2.new(1,0,0.1,0)
 drag.BackgroundTransparency = 1
 drag.Parent = mainGui
-local dragify = false
+local dragging = false
 local dragInput, mousePos, framePos
 drag.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragify = true
+		dragging = true
 		mousePos = input.Position
 		framePos = mainGui.Position
 		input.Changed:Connect(function()
 			if input.UserInputState == Enum.UserInputState.End then
-				dragify = false
+				dragging = false
 			end
 		end)
 	end
 end)
 drag.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement and dragify then
+	if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
 		local delta = input.Position - mousePos
 		mainGui.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
 	end
@@ -139,7 +148,7 @@ topbar.Size = UDim2.new(1,0,0.1,0)
 topbar.Text = "KAZO MENU"
 topbar.TextScaled = true
 topbar.Font = Enum.Font.SourceSansBold
-topbar.BackgroundColor3 = Color3.fromRGB(0,0,0)
+topbar.BackgroundColor3 = Color3.new(0,0,0)
 topbar.TextColor3 = Color3.new(1,1,1)
 topbar.Parent = mainGui
 
