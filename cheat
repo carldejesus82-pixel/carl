@@ -1,7 +1,6 @@
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Main Cover Frame (Whole Screen)
 local cover = Instance.new("Frame")
 cover.Size = UDim2.new(1,0,1,0)
 cover.Position = UDim2.new(0,0,0,0)
@@ -10,21 +9,18 @@ cover.BackgroundTransparency = 0
 cover.BorderSizePixel = 0
 cover.Parent = playerGui
 
--- Cover Image
 local image = Instance.new("ImageLabel")
 image.Size = UDim2.new(1,0,1,0)
 image.BackgroundTransparency = 1
 image.Image = "rbxassetid://133949947924437"
 image.Parent = cover
 
--- Glow Outline for Cover
 local coverUIStroke = Instance.new("UIStroke")
 coverUIStroke.Thickness = 3
 coverUIStroke.Color = Color3.fromRGB(255,255,255)
 coverUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 coverUIStroke.Parent = cover
 
--- Title Text
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0.1,0)
 title.Position = UDim2.new(0,0,0,0)
@@ -35,7 +31,6 @@ title.TextColor3 = Color3.new(1,1,1)
 title.BackgroundTransparency = 1
 title.Parent = cover
 
--- FPS Counter (Bottom Right)
 local fpsLabel = Instance.new("TextLabel")
 fpsLabel.Size = UDim2.new(0.2,0,0.05,0)
 fpsLabel.Position = UDim2.new(0.8,0,0.95,0)
@@ -45,7 +40,6 @@ fpsLabel.BackgroundTransparency = 1
 fpsLabel.Text = "FPS: 0"
 fpsLabel.Parent = cover
 
--- Processing Percent (Bottom Center)
 local percentLabel = Instance.new("TextLabel")
 percentLabel.Size = UDim2.new(0.3,0,0.05,0)
 percentLabel.Position = UDim2.new(0.35,0,0.85,0)
@@ -55,7 +49,6 @@ percentLabel.TextColor3 = Color3.new(1,1,1)
 percentLabel.BackgroundTransparency = 1
 percentLabel.Parent = cover
 
--- Thin Grey Progress Bar with White Fill
 local barBack = Instance.new("Frame")
 barBack.Size = UDim2.new(0.3,0,0.015,0)
 barBack.Position = UDim2.new(0.35,0,0.80,0)
@@ -71,7 +64,6 @@ barFill.BorderSizePixel = 0
 barFill.Parent = barBack
 Instance.new("UICorner", barFill)
 
--- Profile Image (Left of Progress Bar)
 local profile = Instance.new("ImageLabel")
 profile.Size = UDim2.new(0.05,0,0.1,0)
 profile.Position = UDim2.new(0.25,0,0.78,0)
@@ -81,7 +73,6 @@ pcall(function()
 end)
 profile.Parent = cover
 
--- FPS Update
 local RunService = game:GetService("RunService")
 local lastUpdate = tick()
 local frames = 0
@@ -94,17 +85,15 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- Progress Animation (20s)
 task.spawn(function()
 	for i = 1,100 do
 		percentLabel.Text = i.."%"
 		barFill.Size = UDim2.new(i/100,0,1,0)
-		task.wait(0.2) -- 100 * 0.2 = 20s
+		task.wait(0.2)
 	end
 	cover:Destroy()
 end)
 
--- Main GUI (hidden until toggle)
 local mainGui = Instance.new("Frame")
 mainGui.Size = UDim2.new(0.6,0,0.6,0)
 mainGui.Position = UDim2.new(0.2,0,0.2,0)
@@ -113,14 +102,12 @@ mainGui.Visible = false
 mainGui.Parent = playerGui
 Instance.new("UICorner", mainGui)
 
--- Glow Outline for Main GUI
 local mainUIStroke = Instance.new("UIStroke")
 mainUIStroke.Thickness = 3
 mainUIStroke.Color = Color3.fromRGB(255,255,255)
 mainUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 mainUIStroke.Parent = mainGui
 
--- Drag
 local drag = Instance.new("Frame")
 drag.Size = UDim2.new(1,0,0.1,0)
 drag.BackgroundTransparency = 1
@@ -146,7 +133,6 @@ drag.InputChanged:Connect(function(input)
 	end
 end)
 
--- Topbar
 local topbar = Instance.new("TextLabel")
 topbar.Size = UDim2.new(1,0,0.1,0)
 topbar.Text = "KAZO MENU"
@@ -156,7 +142,6 @@ topbar.BackgroundColor3 = Color3.fromRGB(0,0,0)
 topbar.TextColor3 = Color3.new(1,1,1)
 topbar.Parent = mainGui
 
--- Profile + FPS on Top Left
 local profileSmall = profile:Clone()
 profileSmall.Size = UDim2.new(0.1,0,1,0)
 profileSmall.Position = UDim2.new(0,0,0,0)
@@ -167,7 +152,6 @@ fpsSmall.Size = UDim2.new(0.2,0,1,0)
 fpsSmall.Position = UDim2.new(0.12,0,0,0)
 fpsSmall.Parent = topbar
 
--- Tabs
 local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
 for i, name in ipairs(tabNames) do
 	local tab = Instance.new("TextButton")
@@ -180,7 +164,6 @@ for i, name in ipairs(tabNames) do
 	tab.Parent = mainGui
 end
 
--- Toggle with K
 local UserInputService = game:GetService("UserInputService")
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if not gpe and input.KeyCode == Enum.KeyCode.K then
