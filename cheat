@@ -10,14 +10,12 @@ gui.Parent = player:WaitForChild("PlayerGui")
 
 -- Main Frame
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 400, 0, 300)
-mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+mainFrame.Size = UDim2.new(0, 420, 0, 330)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -165)
 mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainFrame.BorderSizePixel = 2
 mainFrame.Parent = gui
 mainFrame.Visible = true
-
--- Draggable
 mainFrame.Active = true
 mainFrame.Draggable = true
 
@@ -51,7 +49,7 @@ fpsLabel.Parent = topBar
 local lastUpdate = tick()
 local frames = 0
 RunService.RenderStepped:Connect(function()
-    frames = frames + 1
+    frames += 1
     if tick() - lastUpdate >= 1 then
         fpsLabel.Text = "FPS: " .. tostring(frames)
         frames = 0
@@ -61,13 +59,18 @@ end)
 
 -- Tabs
 local tabs = {"Roleplay", "Troll", "Guns", "EXP"}
-local currentTab = "Roleplay"
+local tabFrames = {}
 
-local tabButtons = {}
+local function switchTab(tabName)
+    for name, frame in pairs(tabFrames) do
+        frame.Visible = (name == tabName)
+    end
+end
+
 for i, tabName in ipairs(tabs) do
     local tabBtn = Instance.new("TextButton")
-    tabBtn.Size = UDim2.new(0, 90, 0, 30)
-    tabBtn.Position = UDim2.new(0, (i - 1) * 95 + 5, 0, 35)
+    tabBtn.Size = UDim2.new(0, 95, 0, 30)
+    tabBtn.Position = UDim2.new(0, (i - 1) * 100 + 5, 0, 35)
     tabBtn.Text = tabName
     tabBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -75,71 +78,73 @@ for i, tabName in ipairs(tabs) do
     tabBtn.BorderSizePixel = 2
     tabBtn.Parent = mainFrame
 
-    tabButtons[tabName] = tabBtn
+    local frame = Instance.new("ScrollingFrame")
+    frame.Size = UDim2.new(1, -10, 1, -80)
+    frame.Position = UDim2.new(0, 5, 0, 70)
+    frame.BackgroundTransparency = 1
+    frame.BorderSizePixel = 0
+    frame.CanvasSize = UDim2.new(0, 0, 10, 0)
+    frame.ScrollBarThickness = 8
+    frame.Visible = false
+    frame.Parent = mainFrame
+    tabFrames[tabName] = frame
+
     tabBtn.MouseButton1Click:Connect(function()
-        currentTab = tabName
-        for _, child in ipairs(buttonFrame:GetChildren()) do
-            if child:IsA("TextButton") then
-                child.Visible = (child:GetAttribute("Tab") == currentTab)
-            end
-        end
+        switchTab(tabName)
     end)
 end
 
--- Scrolling Frame for Buttons
-local buttonFrame = Instance.new("ScrollingFrame")
-buttonFrame.Size = UDim2.new(1, -10, 1, -80)
-buttonFrame.Position = UDim2.new(0, 5, 0, 70)
-buttonFrame.BackgroundTransparency = 1
-buttonFrame.BorderSizePixel = 0
-buttonFrame.CanvasSize = UDim2.new(0, 0, 5, 0)
-buttonFrame.ScrollBarThickness = 8
-buttonFrame.Parent = mainFrame
+switchTab("Roleplay") -- default tab
 
--- Helper function
+-- Helper: Create Button
 local function createButton(tab, text, callback)
+    local frame = tabFrames[tab]
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.95, 0, 0, 35)
-    btn.Position = UDim2.new(0.025, 0, 0, #buttonFrame:GetChildren() * 40)
+    btn.Position = UDim2.new(0.025, 0, 0, #frame:GetChildren() * 40)
     btn.Text = text
     btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.TextScaled = true
     btn.BorderSizePixel = 2
-    btn.Parent = buttonFrame
-    btn:SetAttribute("Tab", tab)
-    btn.Visible = (tab == currentTab)
+    btn.Parent = frame
     btn.MouseButton1Click:Connect(callback)
 end
 
--- Roleplay Buttons
+-- Roleplay Tab
 createButton("Roleplay", "Infinite Yield", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 end)
 createButton("Roleplay", "Dex Explorer", function()
     loadstring(game:HttpGet("https://cdn.wearedevs.net/scripts/Dex%20Explorer.txt"))()
 end)
+createButton("Roleplay", "ESP", function() print("ESP Activated") end)
+createButton("Roleplay", "Aimbot", function() print("Aimbot Activated") end)
+createButton("Roleplay", "FPS Booster", function() print("FPS Booster Activated") end)
+createButton("Roleplay", "Music Expo", function() print("Music Expo Loaded") end)
+createButton("Roleplay", "Faded Menu", function() print("Faded Menu Loaded") end)
+createButton("Roleplay", "Touch Fling", function() print("Touch Fling Enabled") end)
+createButton("Roleplay", "Hitbox Expander", function() print("Hitbox Expander On") end)
+createButton("Roleplay", "Bring Parts", function() print("Bring Parts Done") end)
 
--- Troll Buttons
-createButton("Troll", "Fling All", function()
-    print("Fling All Activated")
-end)
-createButton("Troll", "Wicked Menu", function()
-    print("Wicked Activated")
-end)
+-- Troll Tab
+createButton("Troll", "Fling All", function() print("Fling All Activated") end)
+createButton("Troll", "Wicked Menu", function() print("Wicked Menu Loaded") end)
 
--- Guns Buttons (Dupe Guns example)
-createButton("Guns", "Get Glock-17", function()
-    print("Give Glock-17")
-end)
-createButton("Guns", "Get AK-47", function()
-    print("Give AK-47")
-end)
+-- Guns Tab
+createButton("Guns", "HK416", function() print("Give HK416") end)
+createButton("Guns", "SP", function() print("Give SP") end)
+createButton("Guns", "Medkit", function() print("Give Medkit") end)
+createButton("Guns", "Desert Eagle", function() print("Give Desert Eagle") end)
+createButton("Guns", "Glock-17", function() print("Give Glock-17") end)
+createButton("Guns", "Glock-19", function() print("Give Glock-19") end)
+createButton("Guns", "AK-47", function() print("Give AK-47") end)
+createButton("Guns", "Bandages", function() print("Give Bandages") end)
+createButton("Guns", "UZI", function() print("Give UZI") end)
 
--- EXP Tab: Track
+-- EXP Tab
 local trackingEnabled = false
-local beams = {}
-local nameTags = {}
+local beams, nameTags = {}, {}
 
 local function createBeam(target)
     local char = player.Character
@@ -181,16 +186,15 @@ local function createBeam(target)
 end
 
 local function clearTracking()
-    for plr, data in pairs(beams) do
+    for _, data in pairs(beams) do
         if data.beam then data.beam:Destroy() end
         if data.att1 then data.att1:Destroy() end
         if data.att2 then data.att2:Destroy() end
     end
-    for plr, tag in pairs(nameTags) do
+    for _, tag in pairs(nameTags) do
         if tag then tag:Destroy() end
     end
-    beams = {}
-    nameTags = {}
+    beams, nameTags = {}, {}
 end
 
 createButton("EXP", "Track", function()
@@ -198,23 +202,16 @@ createButton("EXP", "Track", function()
     clearTracking()
     if trackingEnabled then
         for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= player then
-                createBeam(plr)
-            end
+            if plr ~= player then createBeam(plr) end
         end
     end
 end)
 
 Players.PlayerAdded:Connect(function(plr)
-    if trackingEnabled and plr ~= player then
-        createBeam(plr)
-    end
+    if trackingEnabled and plr ~= player then createBeam(plr) end
 end)
-
 Players.PlayerRemoving:Connect(function(plr)
-    if beams[plr] then
-        clearTracking()
-    end
+    if beams[plr] then clearTracking() end
 end)
 
 -- Toggle with K key
@@ -234,7 +231,6 @@ mobileToggle.Text = "3KS"
 mobileToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
 mobileToggle.TextScaled = true
 mobileToggle.Parent = gui
-
 mobileToggle.MouseButton1Click:Connect(function()
     mainFrame.Visible = not mainFrame.Visible
 end)
