@@ -1,14 +1,12 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-
 local player = Players.LocalPlayer
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "CustomMenu"
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Main Frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 420, 0, 330)
 mainFrame.Position = UDim2.new(0.5, -210, 0.5, -165)
@@ -19,14 +17,12 @@ mainFrame.Visible = true
 mainFrame.Active = true
 mainFrame.Draggable = true
 
--- Top Bar
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(1, 0, 0, 30)
 topBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 topBar.BorderSizePixel = 1
 topBar.Parent = mainFrame
 
--- Profile
 local profileLabel = Instance.new("TextLabel")
 profileLabel.Size = UDim2.new(0.5, 0, 1, 0)
 profileLabel.Position = UDim2.new(0, 5, 0, 0)
@@ -36,7 +32,6 @@ profileLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 profileLabel.TextScaled = true
 profileLabel.Parent = topBar
 
--- FPS Counter
 local fpsLabel = Instance.new("TextLabel")
 fpsLabel.Size = UDim2.new(0.3, 0, 1, 0)
 fpsLabel.Position = UDim2.new(0.7, -5, 0, 0)
@@ -57,8 +52,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Tabs
-local tabs = {"Roleplay", "Troll", "Guns", "EXP"}
+local tabs = {"Roleplay", "Troll", "Guns", "MATA"}
 local tabFrames = {}
 
 local function switchTab(tabName)
@@ -106,7 +100,6 @@ end
 
 switchTab("Roleplay")
 
--- Helper: Create Button
 local function createButton(tab, text, callback)
     local frame = tabFrames[tab]
     local btn = Instance.new("TextButton")
@@ -120,7 +113,6 @@ local function createButton(tab, text, callback)
     btn.MouseButton1Click:Connect(callback)
 end
 
--- Roleplay Buttons
 createButton("Roleplay", "Infinite Yield", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 end)
@@ -136,11 +128,9 @@ createButton("Roleplay", "Touch Fling", function() print("Touch Fling Enabled") 
 createButton("Roleplay", "Hitbox Expander", function() print("Hitbox Expander On") end)
 createButton("Roleplay", "Bring Parts", function() print("Bring Parts Done") end)
 
--- Troll Buttons
 createButton("Troll", "Fling All", function() print("Fling All Activated") end)
 createButton("Troll", "Wicked Menu", function() print("Wicked Menu Loaded") end)
 
--- Guns Buttons
 createButton("Guns", "HK416", function() print("Give HK416") end)
 createButton("Guns", "SP", function() print("Give SP") end)
 createButton("Guns", "Medkit", function() print("Give Medkit") end)
@@ -151,7 +141,6 @@ createButton("Guns", "AK-47", function() print("Give AK-47") end)
 createButton("Guns", "Bandages", function() print("Give Bandages") end)
 createButton("Guns", "UZI", function() print("Give UZI") end)
 
--- EXP Tab
 local trackingEnabled = false
 local beams, nameTags = {}, {}
 
@@ -159,30 +148,30 @@ local function createBeam(target)
     local char = player.Character
     local tChar = target.Character
     if not char or not tChar then return end
-
     local hrp = char:FindFirstChild("HumanoidRootPart")
     local thrp = tChar:FindFirstChild("HumanoidRootPart")
     if not hrp or not thrp then return end
-
     local att1 = Instance.new("Attachment", hrp)
     local att2 = Instance.new("Attachment", thrp)
-
     local beam = Instance.new("Beam")
     beam.Attachment0 = att1
     beam.Attachment1 = att2
-    beam.Color = ColorSequence.new(Color3.fromRGB(255, 255, 0))
+    beam.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255))
     beam.Width0 = 0.2
     beam.Width1 = 0.2
+    beam.FaceCamera = true
+    beam.Segments = 20
+    beam.LightInfluence = 0
+    beam.Brightness = 5
+    beam.Texture = "rbxassetid://1095708"
+    beam.TextureMode = Enum.TextureMode.Stretch
     beam.Parent = hrp
-
     beams[target] = {beam = beam, att1 = att1, att2 = att2}
-
     local billboard = Instance.new("BillboardGui")
     billboard.Size = UDim2.new(0, 100, 0, 30)
     billboard.Adornee = thrp
     billboard.AlwaysOnTop = true
     billboard.Parent = tChar
-
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, 0, 1, 0)
     label.BackgroundTransparency = 1
@@ -190,7 +179,6 @@ local function createBeam(target)
     label.TextScaled = true
     label.Text = target.Name
     label.Parent = billboard
-
     nameTags[target] = billboard
 end
 
@@ -206,7 +194,7 @@ local function clearTracking()
     beams, nameTags = {}, {}
 end
 
-createButton("EXP", "Track", function()
+createButton("MATA", "Track", function()
     trackingEnabled = not trackingEnabled
     clearTracking()
     if trackingEnabled then
@@ -219,11 +207,21 @@ end)
 Players.PlayerAdded:Connect(function(plr)
     if trackingEnabled and plr ~= player then createBeam(plr) end
 end)
+
 Players.PlayerRemoving:Connect(function(plr)
-    if beams[plr] then clearTracking() end
+    if beams[plr] then
+        local data = beams[plr]
+        data.beam:Destroy()
+        data.att1:Destroy()
+        data.att2:Destroy()
+        beams[plr] = nil
+    end
+    if nameTags[plr] then
+        nameTags[plr]:Destroy()
+        nameTags[plr] = nil
+    end
 end)
 
--- Toggle with K key
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.K then
@@ -231,11 +229,12 @@ UserInputService.InputBegan:Connect(function(input, gp)
     end
 end)
 
--- Mobile Toggle
 local mobileToggle = Instance.new("TextButton")
 mobileToggle.Size = UDim2.new(0, 80, 0, 25)
 mobileToggle.Position = UDim2.new(0.5, -40, 0, 5)
-mobileToggle.BackgroundTransparency = 1
+mobileToggle.BackgroundTransparency = 0.5
+mobileToggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mobileToggle.BorderSizePixel = 1
 mobileToggle.Text = "3KS"
 mobileToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
 mobileToggle.TextScaled = true
