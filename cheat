@@ -1,26 +1,30 @@
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local player = Players.LocalPlayer
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
-local screengui = Instance.new("ScreenGui")
-screengui.Name = "KAZO_UI"
-screengui.IgnoreGuiInset = true
-screengui.Parent = player:WaitForChild("PlayerGui")
+-- Main Cover Frame (Whole Screen)
+local cover = Instance.new("Frame")
+cover.Size = UDim2.new(1,0,1,0)
+cover.Position = UDim2.new(0,0,0,0)
+cover.BackgroundColor3 = Color3.new(0,0,0)
+cover.BackgroundTransparency = 0
+cover.BorderSizePixel = 0
+cover.Parent = playerGui
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(1,0,1,0)
-frame.Position = UDim2.new(0,0,0,0)
-frame.BackgroundColor3 = Color3.new(0,0,0)
-frame.BorderSizePixel = 4
-frame.BorderColor3 = Color3.new(1,1,1)
-frame.Parent = screengui
+-- Cover Image
+local image = Instance.new("ImageLabel")
+image.Size = UDim2.new(1,0,1,0)
+image.BackgroundTransparency = 1
+image.Image = "rbxassetid://133949947924437"
+image.Parent = cover
 
-local img = Instance.new("ImageLabel")
-img.Size = UDim2.new(1,0,1,0)
-img.BackgroundTransparency = 1
-img.Image = "rbxassetid://133949947924437"
-img.Parent = frame
+-- Glow Outline for Cover
+local coverUIStroke = Instance.new("UIStroke")
+coverUIStroke.Thickness = 3
+coverUIStroke.Color = Color3.fromRGB(255,255,255)
+coverUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+coverUIStroke.Parent = cover
 
+-- Title Text
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0.1,0)
 title.Position = UDim2.new(0,0,0,0)
@@ -29,123 +33,157 @@ title.TextScaled = true
 title.Font = Enum.Font.SourceSansBold
 title.TextColor3 = Color3.new(1,1,1)
 title.BackgroundTransparency = 1
-title.Parent = frame
+title.Parent = cover
 
+-- FPS Counter (Bottom Right)
 local fpsLabel = Instance.new("TextLabel")
 fpsLabel.Size = UDim2.new(0.2,0,0.05,0)
 fpsLabel.Position = UDim2.new(0.8,0,0.95,0)
-fpsLabel.Text = "FPS: 0"
 fpsLabel.TextScaled = true
-fpsLabel.Font = Enum.Font.SourceSans
 fpsLabel.TextColor3 = Color3.new(1,1,1)
 fpsLabel.BackgroundTransparency = 1
-fpsLabel.Parent = frame
+fpsLabel.Text = "FPS: 0"
+fpsLabel.Parent = cover
 
-local avatar = Instance.new("ImageLabel")
-avatar.Size = UDim2.new(0.1,0,0.2,0)
-avatar.Position = UDim2.new(0.05,0,0.7,0)
-avatar.BackgroundTransparency = 1
-local thumb = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-avatar.Image = thumb
-avatar.Parent = frame
-
+-- Processing Percent (Bottom Center)
 local percentLabel = Instance.new("TextLabel")
-percentLabel.Size = UDim2.new(0.2,0,0.05,0)
-percentLabel.Position = UDim2.new(0.4,0,0.85,0)
+percentLabel.Size = UDim2.new(0.3,0,0.05,0)
+percentLabel.Position = UDim2.new(0.35,0,0.85,0)
 percentLabel.Text = "0%"
 percentLabel.TextScaled = true
-percentLabel.Font = Enum.Font.SourceSansBold
 percentLabel.TextColor3 = Color3.new(1,1,1)
 percentLabel.BackgroundTransparency = 1
-percentLabel.Parent = frame
+percentLabel.Parent = cover
 
-local barContainer = Instance.new("Frame")
-barContainer.Size = UDim2.new(0.4,0,0.015,0)
-barContainer.Position = UDim2.new(0.3,0,0.82,0)
-barContainer.BackgroundColor3 = Color3.fromRGB(255,255,255)
-barContainer.BorderSizePixel = 0
-barContainer.Parent = frame
+-- Thin Grey Progress Bar with White Fill
+local barBack = Instance.new("Frame")
+barBack.Size = UDim2.new(0.3,0,0.015,0)
+barBack.Position = UDim2.new(0.35,0,0.80,0)
+barBack.BackgroundColor3 = Color3.fromRGB(80,80,80)
+barBack.BorderSizePixel = 0
+barBack.Parent = cover
+Instance.new("UICorner", barBack)
 
-local bar = Instance.new("Frame")
-bar.Size = UDim2.new(0,0,1,0)
-bar.BackgroundColor3 = Color3.new(1,1,1)
-bar.BorderSizePixel = 0
-bar.Parent = barContainer
+local barFill = Instance.new("Frame")
+barFill.Size = UDim2.new(0,0,1,0)
+barFill.BackgroundColor3 = Color3.fromRGB(255,255,255)
+barFill.BorderSizePixel = 0
+barFill.Parent = barBack
+Instance.new("UICorner", barFill)
 
-local last = tick()
-local count = 0
+-- Profile Image (Left of Progress Bar)
+local profile = Instance.new("ImageLabel")
+profile.Size = UDim2.new(0.05,0,0.1,0)
+profile.Position = UDim2.new(0.25,0,0.78,0)
+profile.BackgroundTransparency = 1
+pcall(function()
+	profile.Image = game.Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+end)
+profile.Parent = cover
+
+-- FPS Update
+local RunService = game:GetService("RunService")
+local lastUpdate = tick()
+local frames = 0
 RunService.RenderStepped:Connect(function()
-	count += 1
-	if tick() - last >= 1 then
-		fpsLabel.Text = "FPS: "..tostring(count)
-		count = 0
-		last = tick()
+	frames += 1
+	if tick() - lastUpdate >= 1 then
+		fpsLabel.Text = "FPS: "..frames
+		frames = 0
+		lastUpdate = tick()
 	end
 end)
 
+-- Progress Animation (20s)
 task.spawn(function()
-	for i = 1, 100 do
-		bar.Size = UDim2.new(i/100,0,1,0)
+	for i = 1,100 do
 		percentLabel.Text = i.."%"
-		task.wait(0.2)
+		barFill.Size = UDim2.new(i/100,0,1,0)
+		task.wait(0.2) -- 100 * 0.2 = 20s
 	end
+	cover:Destroy()
+end)
 
-	frame:Destroy()
+-- Main GUI (hidden until toggle)
+local mainGui = Instance.new("Frame")
+mainGui.Size = UDim2.new(0.6,0,0.6,0)
+mainGui.Position = UDim2.new(0.2,0,0.2,0)
+mainGui.BackgroundColor3 = Color3.fromRGB(0,0,0)
+mainGui.Visible = false
+mainGui.Parent = playerGui
+Instance.new("UICorner", mainGui)
 
-	local mainGui = Instance.new("Frame")
-	mainGui.Size = UDim2.new(0.6,0,0.7,0)
-	mainGui.Position = UDim2.new(0.2,0,0.15,0)
-	mainGui.BackgroundColor3 = Color3.fromRGB(0,0,0)
-	mainGui.Parent = screengui
-	mainGui.Active = true
-	mainGui.Draggable = true
+-- Glow Outline for Main GUI
+local mainUIStroke = Instance.new("UIStroke")
+mainUIStroke.Thickness = 3
+mainUIStroke.Color = Color3.fromRGB(255,255,255)
+mainUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+mainUIStroke.Parent = mainGui
 
-	local stroke = Instance.new("UIStroke")
-	stroke.Thickness = 3
-	stroke.Color = Color3.new(1,1,1)
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Parent = mainGui
+-- Drag
+local drag = Instance.new("Frame")
+drag.Size = UDim2.new(1,0,0.1,0)
+drag.BackgroundTransparency = 1
+drag.Parent = mainGui
+local dragify = false
+local dragInput, mousePos, framePos
+drag.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragify = true
+		mousePos = input.Position
+		framePos = mainGui.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragify = false
+			end
+		end)
+	end
+end)
+drag.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement and dragify then
+		local delta = input.Position - mousePos
+		mainGui.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+	end
+end)
 
-	local gradient = Instance.new("UIGradient")
-	gradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.new(1,1,1)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(200,200,200))
-	}
-	gradient.Rotation = 90
-	gradient.Parent = stroke
+-- Topbar
+local topbar = Instance.new("TextLabel")
+topbar.Size = UDim2.new(1,0,0.1,0)
+topbar.Text = "KAZO MENU"
+topbar.TextScaled = true
+topbar.Font = Enum.Font.SourceSansBold
+topbar.BackgroundColor3 = Color3.fromRGB(0,0,0)
+topbar.TextColor3 = Color3.new(1,1,1)
+topbar.Parent = mainGui
 
-	local topBar = Instance.new("TextLabel")
-	topBar.Size = UDim2.new(1,0,0.1,0)
-	topBar.BackgroundColor3 = Color3.fromRGB(0,0,0)
-	topBar.Text = "KAZO MENU"
-	topBar.TextScaled = true
-	topBar.Font = Enum.Font.SourceSansBold
-	topBar.TextColor3 = Color3.new(1,1,1)
-	topBar.Parent = mainGui
+-- Profile + FPS on Top Left
+local profileSmall = profile:Clone()
+profileSmall.Size = UDim2.new(0.1,0,1,0)
+profileSmall.Position = UDim2.new(0,0,0,0)
+profileSmall.Parent = topbar
 
-	local avatar2 = avatar:Clone()
-	avatar2.Size = UDim2.new(0,40,0,40)
-	avatar2.Position = UDim2.new(0,5,0,5)
-	avatar2.Parent = mainGui
+local fpsSmall = fpsLabel:Clone()
+fpsSmall.Size = UDim2.new(0.2,0,1,0)
+fpsSmall.Position = UDim2.new(0.12,0,0,0)
+fpsSmall.Parent = topbar
 
-	local fpsLabel2 = fpsLabel:Clone()
-	fpsLabel2.Size = UDim2.new(0.2,0,0.1,0)
-	fpsLabel2.Position = UDim2.new(0.8,0,0,0)
-	fpsLabel2.Parent = mainGui
+-- Tabs
+local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
+for i, name in ipairs(tabNames) do
+	local tab = Instance.new("TextButton")
+	tab.Size = UDim2.new(0.22,0,0.1,0)
+	tab.Position = UDim2.new(0.05 + (i-1)*0.23,0,0.2,0)
+	tab.Text = name
+	tab.TextScaled = true
+	tab.BackgroundColor3 = Color3.fromRGB(30,30,30)
+	tab.TextColor3 = Color3.new(1,1,1)
+	tab.Parent = mainGui
+end
 
-	RunService.RenderStepped:Connect(function()
-		fpsLabel2.Text = fpsLabel.Text
-	end)
-
-	local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
-	for i, name in ipairs(tabNames) do
-		local tab = Instance.new("TextButton")
-		tab.Size = UDim2.new(0.22,0,0.1,0)
-		tab.Position = UDim2.new(0.05 + (i-1)*0.23,0,0.2,0)
-		tab.Text = name
-		tab.TextScaled = true
-		tab.BackgroundColor3 = Color3.fromRGB(30,30,30)
-		tab.TextColor3 = Color3.new(1,1,1)
-		tab.Parent = mainGui
+-- Toggle with K
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, gpe)
+	if not gpe and input.KeyCode == Enum.KeyCode.K then
+		mainGui.Visible = not mainGui.Visible
 	end
 end)
