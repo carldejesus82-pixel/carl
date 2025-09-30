@@ -1,5 +1,7 @@
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local cover = Instance.new("Frame")
 cover.Size = UDim2.new(1,0,1,0)
@@ -73,7 +75,6 @@ pcall(function()
 end)
 profile.Parent = cover
 
-local RunService = game:GetService("RunService")
 local lastUpdate = tick()
 local frames = 0
 RunService.RenderStepped:Connect(function()
@@ -164,7 +165,6 @@ for i, name in ipairs(tabNames) do
 	tab.Parent = mainGui
 end
 
-local UserInputService = game:GetService("UserInputService")
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if not gpe and input.KeyCode == Enum.KeyCode.K then
 		mainGui.Visible = not mainGui.Visible
