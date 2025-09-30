@@ -1,244 +1,188 @@
+-- LocalScript in StarterGui
+
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
-local gui = Instance.new("ScreenGui")
-gui.Name = "CustomMenu"
-gui.Parent = player:WaitForChild("PlayerGui")
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
 
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 420, 0, 330)
-mainFrame.Position = UDim2.new(0.5, -210, 0.5, -165)
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-mainFrame.BorderSizePixel = 2
-mainFrame.Parent = gui
-mainFrame.Visible = true
-mainFrame.Active = true
-mainFrame.Draggable = true
+-- Main Frame (covers whole screen)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(1,0,1,0)
+frame.Position = UDim2.new(0,0,0,0)
+frame.BackgroundTransparency = 1
+frame.Parent = screenGui
 
-local topBar = Instance.new("Frame")
-topBar.Size = UDim2.new(1, 0, 0, 30)
-topBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-topBar.BorderSizePixel = 1
-topBar.Parent = mainFrame
+-- Background image
+local bg = Instance.new("ImageLabel")
+bg.Size = UDim2.new(1,0,1,0)
+bg.Position = UDim2.new(0,0,0,0)
+bg.Image = "rbxassetid://133949947924437"
+bg.BackgroundTransparency = 0
+bg.Parent = frame
 
-local profileLabel = Instance.new("TextLabel")
-profileLabel.Size = UDim2.new(0.5, 0, 1, 0)
-profileLabel.Position = UDim2.new(0, 5, 0, 0)
-profileLabel.BackgroundTransparency = 1
-profileLabel.Text = "Profile: " .. player.Name
-profileLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-profileLabel.TextScaled = true
-profileLabel.Parent = topBar
+-- Title top center
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0.15,0)
+title.Position = UDim2.new(0,0,0.05,0)
+title.BackgroundTransparency = 1
+title.Text = "KAZO MENU"
+title.TextScaled = true
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.SourceSansBold
+title.Parent = frame
 
+-- Notes text (middle right)
+local notes = Instance.new("TextLabel")
+notes.Size = UDim2.new(0.3,0,0.15,0)
+notes.Position = UDim2.new(0.7,0,0.5,0)
+notes.BackgroundTransparency = 1
+notes.Text = "this cheat is made by soza and carl kaya magpasalamat kayo sakin"
+notes.TextScaled = true
+notes.TextColor3 = Color3.new(1,1,1)
+notes.Font = Enum.Font.SourceSans
+notes.Parent = frame
+
+-- Progress bar container
+local barContainer = Instance.new("Frame")
+barContainer.Size = UDim2.new(0.5,0,0.05,0)
+barContainer.Position = UDim2.new(0.25,0,0.85,0)
+barContainer.BackgroundColor3 = Color3.fromRGB(50,50,50)
+barContainer.Parent = frame
+
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(0,0,1,0)
+bar.BackgroundColor3 = Color3.fromRGB(0,200,0)
+bar.Parent = barContainer
+
+-- Percent label
+local percent = Instance.new("TextLabel")
+percent.Size = UDim2.new(0.2,0,0.05,0)
+percent.Position = UDim2.new(0.4,0,0.8,0)
+percent.BackgroundTransparency = 1
+percent.Text = "0%"
+percent.TextScaled = true
+percent.TextColor3 = Color3.new(1,1,1)
+percent.Parent = frame
+
+-- FPS text (bottom right)
 local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(0.3, 0, 1, 0)
-fpsLabel.Position = UDim2.new(0.7, -5, 0, 0)
+fpsLabel.Size = UDim2.new(0.2,0,0.05,0)
+fpsLabel.Position = UDim2.new(0.8,0,0.95,0)
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.Text = "FPS: 0"
-fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 fpsLabel.TextScaled = true
-fpsLabel.Parent = topBar
+fpsLabel.TextColor3 = Color3.new(1,1,1)
+fpsLabel.Parent = frame
 
-local lastUpdate = tick()
-local frames = 0
-RunService.RenderStepped:Connect(function()
-    frames += 1
-    if tick() - lastUpdate >= 1 then
-        fpsLabel.Text = "FPS: " .. tostring(frames)
-        frames = 0
-        lastUpdate = tick()
-    end
+-- Profile image (left of progress bar)
+local profile = Instance.new("ImageLabel")
+profile.Size = UDim2.new(0.08,0,0.15,0)
+profile.Position = UDim2.new(0.15,0,0.82,0)
+profile.Image = "rbxthumb://type=AvatarHeadShot&id="..player.UserId.."&w=420&h=420"
+profile.BackgroundTransparency = 1
+profile.Parent = frame
+
+-- Animate progress for 20 seconds
+local totalTime = 20
+local startTime = tick()
+
+-- FPS updater
+RunService.RenderStepped:Connect(function(dt)
+	local fps = math.floor(1/dt)
+	fpsLabel.Text = "FPS: "..fps
 end)
 
-local tabs = {"Roleplay", "Troll", "Guns", "MATA"}
-local tabFrames = {}
-
-local function switchTab(tabName)
-    for name, frame in pairs(tabFrames) do
-        frame.Visible = (name == tabName)
-    end
+for i = 1,totalTime do
+	task.wait(1)
+	local progress = i/totalTime
+	bar.Size = UDim2.new(progress,0,1,0)
+	percent.Text = tostring(math.floor(progress*100)).."%"
 end
 
-for i, tabName in ipairs(tabs) do
-    local tabBtn = Instance.new("TextButton")
-    tabBtn.Size = UDim2.new(0, 95, 0, 30)
-    tabBtn.Position = UDim2.new(0, (i - 1) * 100 + 5, 0, 35)
-    tabBtn.Text = tabName
-    tabBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tabBtn.TextScaled = true
-    tabBtn.BorderSizePixel = 2
-    tabBtn.Parent = mainFrame
+-- Remove first frame
+frame:Destroy()
 
-    local frame = Instance.new("ScrollingFrame")
-    frame.Size = UDim2.new(1, -10, 1, -80)
-    frame.Position = UDim2.new(0, 5, 0, 70)
-    frame.BackgroundTransparency = 1
-    frame.BorderSizePixel = 0
-    frame.CanvasSize = UDim2.new(0, 0, 0, 0)
-    frame.ScrollBarThickness = 8
-    frame.Visible = false
-    frame.Parent = mainFrame
+-- === Second GUI (dragable menu) ===
 
-    local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 5)
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Parent = frame
+local dragGui = Instance.new("ScreenGui")
+dragGui.Parent = player.PlayerGui
+dragGui.ResetOnSpawn = false
 
-    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        frame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-    end)
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0.5,0,0.6,0)
+main.Position = UDim2.new(0.25,0,0.2,0)
+main.BackgroundColor3 = Color3.new(0,0,0)
+main.Active = true
+main.Draggable = true
+main.Parent = dragGui
 
-    tabFrames[tabName] = frame
+-- Top bar
+local top = Instance.new("Frame")
+top.Size = UDim2.new(1,0,0.15,0)
+top.BackgroundTransparency = 1
+top.Parent = main
 
-    tabBtn.MouseButton1Click:Connect(function()
-        switchTab(tabName)
-    end)
-end
+-- Profile on left
+local profile2 = Instance.new("ImageLabel")
+profile2.Size = UDim2.new(0.15,0,1,0)
+profile2.Position = UDim2.new(0,0,0,0)
+profile2.Image = "rbxthumb://type=AvatarHeadShot&id="..player.UserId.."&w=420&h=420"
+profile2.BackgroundTransparency = 1
+profile2.Parent = top
 
-switchTab("Roleplay")
+-- Title center
+local title2 = Instance.new("TextLabel")
+title2.Size = UDim2.new(0.5,0,1,0)
+title2.Position = UDim2.new(0.25,0,0,0)
+title2.BackgroundTransparency = 1
+title2.Text = "KAZO MENU"
+title2.TextScaled = true
+title2.TextColor3 = Color3.new(1,1,1)
+title2.Parent = top
 
-local function createButton(tab, text, callback)
-    local frame = tabFrames[tab]
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.95, 0, 0, 35)
-    btn.Text = text
-    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextScaled = true
-    btn.BorderSizePixel = 2
-    btn.Parent = frame
-    btn.MouseButton1Click:Connect(callback)
-end
+-- FPS right
+local fpsLabel2 = Instance.new("TextLabel")
+fpsLabel2.Size = UDim2.new(0.2,0,1,0)
+fpsLabel2.Position = UDim2.new(0.8,0,0,0)
+fpsLabel2.BackgroundTransparency = 1
+fpsLabel2.Text = "FPS: 0"
+fpsLabel2.TextScaled = true
+fpsLabel2.TextColor3 = Color3.new(1,1,1)
+fpsLabel2.Parent = top
 
-createButton("Roleplay", "Infinite Yield", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-end)
-createButton("Roleplay", "Dex Explorer", function()
-    loadstring(game:HttpGet("https://cdn.wearedevs.net/scripts/Dex%20Explorer.txt"))()
-end)
-createButton("Roleplay", "ESP", function() print("ESP Activated") end)
-createButton("Roleplay", "Aimbot", function() print("Aimbot Activated") end)
-createButton("Roleplay", "FPS Booster", function() print("FPS Booster Activated") end)
-createButton("Roleplay", "Music Expo", function() print("Music Expo Loaded") end)
-createButton("Roleplay", "Faded Menu", function() print("Faded Menu Loaded") end)
-createButton("Roleplay", "Touch Fling", function() print("Touch Fling Enabled") end)
-createButton("Roleplay", "Hitbox Expander", function() print("Hitbox Expander On") end)
-createButton("Roleplay", "Bring Parts", function() print("Bring Parts Done") end)
-
-createButton("Troll", "Fling All", function() print("Fling All Activated") end)
-createButton("Troll", "Wicked Menu", function() print("Wicked Menu Loaded") end)
-
-createButton("Guns", "HK416", function() print("Give HK416") end)
-createButton("Guns", "SP", function() print("Give SP") end)
-createButton("Guns", "Medkit", function() print("Give Medkit") end)
-createButton("Guns", "Desert Eagle", function() print("Give Desert Eagle") end)
-createButton("Guns", "Glock-17", function() print("Give Glock-17") end)
-createButton("Guns", "Glock-19", function() print("Give Glock-19") end)
-createButton("Guns", "AK-47", function() print("Give AK-47") end)
-createButton("Guns", "Bandages", function() print("Give Bandages") end)
-createButton("Guns", "UZI", function() print("Give UZI") end)
-
-local trackingEnabled = false
-local beams, nameTags = {}, {}
-
-local function createBeam(target)
-    local char = player.Character
-    local tChar = target.Character
-    if not char or not tChar then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    local thrp = tChar:FindFirstChild("HumanoidRootPart")
-    if not hrp or not thrp then return end
-    local att1 = Instance.new("Attachment", hrp)
-    local att2 = Instance.new("Attachment", thrp)
-    local beam = Instance.new("Beam")
-    beam.Attachment0 = att1
-    beam.Attachment1 = att2
-    beam.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255))
-    beam.Width0 = 0.2
-    beam.Width1 = 0.2
-    beam.FaceCamera = true
-    beam.Segments = 20
-    beam.LightInfluence = 0
-    beam.Brightness = 5
-    beam.Texture = "rbxassetid://1095708"
-    beam.TextureMode = Enum.TextureMode.Stretch
-    beam.Parent = hrp
-    beams[target] = {beam = beam, att1 = att1, att2 = att2}
-    local billboard = Instance.new("BillboardGui")
-    billboard.Size = UDim2.new(0, 100, 0, 30)
-    billboard.Adornee = thrp
-    billboard.AlwaysOnTop = true
-    billboard.Parent = tChar
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextScaled = true
-    label.Text = target.Name
-    label.Parent = billboard
-    nameTags[target] = billboard
-end
-
-local function clearTracking()
-    for _, data in pairs(beams) do
-        if data.beam then data.beam:Destroy() end
-        if data.att1 then data.att1:Destroy() end
-        if data.att2 then data.att2:Destroy() end
-    end
-    for _, tag in pairs(nameTags) do
-        if tag then tag:Destroy() end
-    end
-    beams, nameTags = {}, {}
-end
-
-createButton("MATA", "Track", function()
-    trackingEnabled = not trackingEnabled
-    clearTracking()
-    if trackingEnabled then
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= player then createBeam(plr) end
-        end
-    end
+RunService.RenderStepped:Connect(function(dt)
+	local fps = math.floor(1/dt)
+	fpsLabel2.Text = "FPS: "..fps
 end)
 
-Players.PlayerAdded:Connect(function(plr)
-    if trackingEnabled and plr ~= player then createBeam(plr) end
-end)
+-- Tabs
+local tab1 = Instance.new("TextButton")
+tab1.Size = UDim2.new(0.3,0,0.1,0)
+tab1.Position = UDim2.new(0.05,0,0.2,0)
+tab1.Text = "ROLEPLAY"
+tab1.TextScaled = true
+tab1.BackgroundColor3 = Color3.fromRGB(30,30,30)
+tab1.TextColor3 = Color3.new(1,1,1)
+tab1.Parent = main
 
-Players.PlayerRemoving:Connect(function(plr)
-    if beams[plr] then
-        local data = beams[plr]
-        data.beam:Destroy()
-        data.att1:Destroy()
-        data.att2:Destroy()
-        beams[plr] = nil
-    end
-    if nameTags[plr] then
-        nameTags[plr]:Destroy()
-        nameTags[plr] = nil
-    end
-end)
+local tab2 = Instance.new("TextButton")
+tab2.Size = UDim2.new(0.3,0,0.1,0)
+tab2.Position = UDim2.new(0.35,0,0.2,0)
+tab2.Text = "TROLL"
+tab2.TextScaled = true
+tab2.BackgroundColor3 = Color3.fromRGB(30,30,30)
+tab2.TextColor3 = Color3.new(1,1,1)
+tab2.Parent = main
 
-UserInputService.InputBegan:Connect(function(input, gp)
-    if gp then return end
-    if input.KeyCode == Enum.KeyCode.K then
-        mainFrame.Visible = not mainFrame.Visible
-    end
-end)
-
-local mobileToggle = Instance.new("TextButton")
-mobileToggle.Size = UDim2.new(0, 80, 0, 25)
-mobileToggle.Position = UDim2.new(0.5, -40, 0, 5)
-mobileToggle.BackgroundTransparency = 0.5
-mobileToggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-mobileToggle.BorderSizePixel = 1
-mobileToggle.Text = "3KS"
-mobileToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-mobileToggle.TextScaled = true
-mobileToggle.Parent = gui
-mobileToggle.MouseButton1Click:Connect(function()
-    mainFrame.Visible = not mainFrame.Visible
-end)
+local tab3 = Instance.new("TextButton")
+tab3.Size = UDim2.new(0.3,0,0.1,0)
+tab3.Position = UDim2.new(0.65,0,0.2,0)
+tab3.Text = "MATA"
+tab3.TextScaled = true
+tab3.BackgroundColor3 = Color3.fromRGB(30,30,30)
+tab3.TextColor3 = Color3.new(1,1,1)
+tab3.Parent = main
