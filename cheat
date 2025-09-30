@@ -1,357 +1,240 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local player = Players.LocalPlayer
 
-local function safeLoadURL(url)
-    local ok, f = pcall(function()
-        return loadstring(game:HttpGet(url))
-    end)
-    if not ok or type(f) ~= "function" then
-        warn("Failed to fetch or load: "..tostring(url))
-        return nil
-    end
-    local sOk, sRet = pcall(f)
-    if not sOk then
-        warn("Error running loaded code from "..tostring(url)..": "..tostring(sRet))
-    end
-    return sOk and sRet or nil
-end
-
 local gui = Instance.new("ScreenGui")
-gui.Name = "3KS_CustomGUI"
-gui.ResetOnSpawn = false
+gui.Name = "CustomMenu"
 gui.Parent = player:WaitForChild("PlayerGui")
 
-local function addOutline(obj, color)
-    local stroke = Instance.new("UIStroke")
-    stroke.Thickness = 1.5
-    stroke.Color = color or Color3.fromRGB(255,255,255)
-    stroke.Parent = obj
-end
-
-local function makeScaledText(obj, maxSize)
-    obj.TextScaled = true
-    local c = Instance.new("UITextSizeConstraint")
-    c.MaxTextSize = maxSize or 20
-    c.Parent = obj
-end
-
+-- Main Frame
 local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 540, 0, 400)
-mainFrame.Position = UDim2.new(0.5, -270, 0.5, -200)
-mainFrame.BackgroundColor3 = Color3.fromRGB(0,0,0)
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
+mainFrame.Size = UDim2.new(0, 400, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BorderSizePixel = 2
 mainFrame.Parent = gui
-addOutline(mainFrame, Color3.fromRGB(255,255,255))
+mainFrame.Visible = true
 
-local dragToggle, dragInput, dragStart, startPos
+-- Draggable
+mainFrame.Active = true
+mainFrame.Draggable = true
 
-local function updateDrag(input)
-    local delta = input.Position - dragStart
-    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-mainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragToggle = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragToggle = false
-            end
-        end)
-    end
-end)
-
-mainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragToggle then
-        updateDrag(input)
-    end
-end)
-
+-- Top Bar
 local topBar = Instance.new("Frame")
-topBar.Name = "TopBar"
-topBar.Size = UDim2.new(1,0,0,70)
-topBar.Position = UDim2.new(0,0,0,0)
-topBar.BackgroundColor3 = Color3.fromRGB(0,0,0)
-topBar.BorderSizePixel = 0
+topBar.Size = UDim2.new(1, 0, 0, 30)
+topBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+topBar.BorderSizePixel = 1
 topBar.Parent = mainFrame
-addOutline(topBar, Color3.fromRGB(255,255,255))
 
-local thumb, ready = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
-local profileImage = Instance.new("ImageLabel")
-profileImage.Name = "ProfileImage"
-profileImage.Size = UDim2.new(0,56,0,56)
-profileImage.Position = UDim2.new(0,10,0.5,-28)
-profileImage.BackgroundTransparency = 1
-profileImage.Image = thumb
-profileImage.Parent = topBar
-addOutline(profileImage, Color3.fromRGB(255,255,255))
+-- Profile
+local profileLabel = Instance.new("TextLabel")
+profileLabel.Size = UDim2.new(0.5, 0, 1, 0)
+profileLabel.Position = UDim2.new(0, 5, 0, 0)
+profileLabel.BackgroundTransparency = 1
+profileLabel.Text = "Profile: " .. player.Name
+profileLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+profileLabel.TextScaled = true
+profileLabel.Parent = topBar
 
-local nameLabel = Instance.new("TextLabel")
-nameLabel.Name = "NameLabel"
-nameLabel.Size = UDim2.new(0,240,0,26)
-nameLabel.Position = UDim2.new(0,76,0,8)
-nameLabel.BackgroundTransparency = 1
-nameLabel.Text = player.Name
-nameLabel.TextColor3 = Color3.fromRGB(255,255,255)
-nameLabel.Font = Enum.Font.GothamBold
-makeScaledText(nameLabel, 20)
-nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-nameLabel.Parent = topBar
-
+-- FPS Counter
 local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Name = "FPSLabel"
-fpsLabel.Size = UDim2.new(0,160,0,26)
-fpsLabel.Position = UDim2.new(1,-170,0,8)
+fpsLabel.Size = UDim2.new(0.3, 0, 1, 0)
+fpsLabel.Position = UDim2.new(0.7, -5, 0, 0)
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.Text = "FPS: 0"
-fpsLabel.TextColor3 = Color3.fromRGB(255,255,255)
-fpsLabel.Font = Enum.Font.GothamBold
-makeScaledText(fpsLabel, 20)
-fpsLabel.TextXAlignment = Enum.TextXAlignment.Right
+fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+fpsLabel.TextScaled = true
 fpsLabel.Parent = topBar
 
-local tabsBar = Instance.new("Frame")
-tabsBar.Name = "TabsBar"
-tabsBar.Size = UDim2.new(1,0,0,34)
-tabsBar.Position = UDim2.new(0,0,0,70)
-tabsBar.BackgroundColor3 = Color3.fromRGB(70,70,70)
-tabsBar.BorderSizePixel = 0
-tabsBar.Parent = mainFrame
-addOutline(tabsBar, Color3.fromRGB(200,200,200))
-
-local tabs = {"ROLEPLAY","TROLL","GUNS"}
-local tabButtons = {}
-local activeTab = "ROLEPLAY"
-
-for i, tname in ipairs(tabs) do
-    local btn = Instance.new("TextButton")
-    btn.Name = tname.."_Tab"
-    btn.Size = UDim2.new(0, 180, 1, 0)
-    btn.Position = UDim2.new(0, (i-1)*180, 0, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(100,100,100)
-    btn.BorderSizePixel = 0
-    btn.Text = tname
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.Font = Enum.Font.GothamBold
-    makeScaledText(btn, 18)
-    btn.Parent = tabsBar
-    addOutline(btn, Color3.fromRGB(255,255,255))
-    tabButtons[tname] = btn
-end
-
-local contentHolder = Instance.new("Frame")
-contentHolder.Name = "ContentHolder"
-contentHolder.Size = UDim2.new(1, -20, 1, -110)
-contentHolder.Position = UDim2.new(0,10,0,110)
-contentHolder.BackgroundTransparency = 1
-contentHolder.Parent = mainFrame
-
-local scroll = Instance.new("ScrollingFrame")
-scroll.Name = "ButtonsScroll"
-scroll.Size = UDim2.new(1,0,1,0)
-scroll.CanvasSize = UDim2.new(0,0,0,0)
-scroll.ScrollBarThickness = 6
-scroll.BackgroundTransparency = 1
-scroll.Parent = contentHolder
-
-local list = Instance.new("UIListLayout")
-list.Parent = scroll
-list.Padding = UDim.new(0,6)
-
-local buttonsByTab = {}
-
-local function createButton(tabName, text, callback)
-    if not buttonsByTab[tabName] then buttonsByTab[tabName] = {} end
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1,-12,0,42)
-    btn.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    btn.BorderSizePixel = 0
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.Font = Enum.Font.Gotham
-    makeScaledText(btn, 18)
-    btn.Parent = scroll
-    addOutline(btn, Color3.fromRGB(255,255,255))
-    btn.MouseButton1Click:Connect(function()
-        local ok, err = pcall(callback)
-        if not ok then warn("Button callback error for "..tostring(text)..": "..tostring(err)) end
-    end)
-    table.insert(buttonsByTab[tabName], btn)
-    btn.Visible = (tabName == activeTab)
-    return btn
-end
-
-list:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    local y = list.AbsoluteContentSize.Y
-    scroll.CanvasSize = UDim2.new(0,0,0, y + 8)
-end)
-
-createButton("ROLEPLAY", "INFINITE YIELD", function()
-    safeLoadURL("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
-end)
-
-createButton("ROLEPLAY", "MUSIC EXPO", function()
-    safeLoadURL("https://rawscripts.net/raw/Universal-Script-FE-Ac6-Music-Vulnerability-25536")
-end)
-
-createButton("ROLEPLAY", "BIG HEAD (toggle)", function()
-    _G._3ks_bighead_enabled = not _G._3ks_bighead_enabled
-    if not _G._3ks_bighead_enabled then return end
-    _G.HeadSize = _G.HeadSize or 4
-    if not _G._3ks_bighead_conn then
-        _G._3ks_bighead_conn = RunService.RenderStepped:Connect(function()
-            if _G._3ks_bighead_enabled then
-                for _, pl in ipairs(Players:GetPlayers()) do
-                    if pl ~= player and pl.Character and pl.Character:FindFirstChild("Head") then
-                        pcall(function()
-                            local h = pl.Character.Head
-                            h.Size = Vector3.new(_G.HeadSize,_G.HeadSize,_G.HeadSize)
-                            h.Transparency = 0.4
-                            h.BrickColor = BrickColor.new("Bright red")
-                            h.Material = Enum.Material.Neon
-                            h.CanCollide = false
-                            if h:IsA("BasePart") then
-                                h.Massless = true
-                            end
-                        end)
-                    end
-                end
-            end
-        end)
-    end
-end)
-
-createButton("ROLEPLAY", "FADED MENU", function()
-    safeLoadURL("https://raw.githubusercontent.com/NighterEpic/Faded-Grid/main/YesEpic")
-end)
-
-createButton("ROLEPLAY", "BRING PARTS", function()
-    safeLoadURL("https://raw.githubusercontent.com/Bac0nHck/Scripts/main/BringFlingPlayers")
-end)
-
-createButton("ROLEPLAY", "TOUCH FLING", function()
-    safeLoadURL("https://rawscripts.net/raw/Universal-Script-Touch-Fling-46156")
-end)
-
-createButton("ROLEPLAY", "HITBOX EXPANDER", function()
-    safeLoadURL("https://raw.githubusercontent.com/ezsee/Hitbox-Expander123/refs/heads/main/waaaaaat")
-end)
-
-createButton("ROLEPLAY", "ESP", function()
-    safeLoadURL("https://pastebin.com/raw/4iVTcMZK")
-end)
-
-createButton("ROLEPLAY", "BOOST FPS", function()
-    pcall(function()
-        _G.Ignore = {}
-        _G.Settings = {Other = {["FPS Cap"] = 240, ["Low Rendering"] = true}}
-    end)
-    safeLoadURL("https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua")
-end)
-
-createButton("ROLEPLAY", "DEX EXPLORER", function()
-    safeLoadURL("https://raw.githubusercontent.com/MassiveHubs/loadstring/refs/heads/main/DexXenoAndRezware")
-end)
-
-createButton("ROLEPLAY", "AIMBOT", function()
-    safeLoadURL("https://raw.githubusercontent.com/Exunys/Aimbot-V3/main/src/Aimbot.lua")
-end)
-
-createButton("TROLL", "FLING ALL", function()
-    safeLoadURL("https://pastebin.com/raw/zqyDSUWX")
-end)
-
-createButton("TROLL", "WICKED", function()
-    safeLoadURL("https://pastebin.com/raw/GY1wfJRZ")
-end)
-
-local function safePurchase(name)
-    pcall(function()
-        if ReplicatedStorage:FindFirstChild("GunShop") and ReplicatedStorage.GunShop:FindFirstChild("Events") and ReplicatedStorage.GunShop.Events:FindFirstChild("Purchase") then
-            ReplicatedStorage.GunShop.Events.Purchase:FireServer(name, -10000)
-        else
-            warn("GunShop purchase not found")
-        end
-    end)
-end
-
-createButton("GUNS", "ALL CITY HK416", function() safePurchase("HK416") end)
-createButton("GUNS", "ALL CITY SP", function() safePurchase("Silenced Pistol") end)
-createButton("GUNS", "ALL CITY MEDKIT", function() safePurchase("MEDKIT") end)
-createButton("GUNS", "ALL CITY Desert Eagle", function() safePurchase("Desert Deagle") end)
-createButton("GUNS", "ALL CITY Glock-17", function() safePurchase("Glock-17") end)
-createButton("GUNS", "ALL CITY Glock-19", function() safePurchase("Glock-19") end)
-createButton("GUNS", "ALL CITY AK-47", function() safePurchase("AK-47") end)
-createButton("GUNS", "ALL CITY BANDAGES", function() safePurchase("BANDAGES") end)
-createButton("GUNS", "ALL CITY UZI", function() safePurchase("UZI") end)
-
-local function switchTab(name)
-    activeTab = name
-    for tab, btlist in pairs(buttonsByTab) do
-        for _, b in ipairs(btlist) do
-            b.Visible = (tab == name)
-        end
-    end
-    for tname, btn in pairs(tabButtons) do
-        if tname == name then
-            btn.BackgroundColor3 = Color3.fromRGB(120,120,120)
-        else
-            btn.BackgroundColor3 = Color3.fromRGB(100,100,100)
-        end
-    end
-end
-
-for tname, btn in pairs(tabButtons) do
-    btn.MouseButton1Click:Connect(function()
-        switchTab(tname)
-    end)
-end
-
-switchTab("ROLEPLAY")
-
-local last = tick()
+local lastUpdate = tick()
 local frames = 0
 RunService.RenderStepped:Connect(function()
     frames = frames + 1
-    if tick() - last >= 1 then
-        fpsLabel.Text = "FPS: ".. tostring(frames)
+    if tick() - lastUpdate >= 1 then
+        fpsLabel.Text = "FPS: " .. tostring(frames)
         frames = 0
-        last = tick()
+        lastUpdate = tick()
     end
 end)
 
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
+-- Tabs
+local tabs = {"Roleplay", "Troll", "Guns", "EXP"}
+local currentTab = "Roleplay"
+
+local tabButtons = {}
+for i, tabName in ipairs(tabs) do
+    local tabBtn = Instance.new("TextButton")
+    tabBtn.Size = UDim2.new(0, 90, 0, 30)
+    tabBtn.Position = UDim2.new(0, (i - 1) * 95 + 5, 0, 35)
+    tabBtn.Text = tabName
+    tabBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tabBtn.TextScaled = true
+    tabBtn.BorderSizePixel = 2
+    tabBtn.Parent = mainFrame
+
+    tabButtons[tabName] = tabBtn
+    tabBtn.MouseButton1Click:Connect(function()
+        currentTab = tabName
+        for _, child in ipairs(buttonFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                child.Visible = (child:GetAttribute("Tab") == currentTab)
+            end
+        end
+    end)
+end
+
+-- Scrolling Frame for Buttons
+local buttonFrame = Instance.new("ScrollingFrame")
+buttonFrame.Size = UDim2.new(1, -10, 1, -80)
+buttonFrame.Position = UDim2.new(0, 5, 0, 70)
+buttonFrame.BackgroundTransparency = 1
+buttonFrame.BorderSizePixel = 0
+buttonFrame.CanvasSize = UDim2.new(0, 0, 5, 0)
+buttonFrame.ScrollBarThickness = 8
+buttonFrame.Parent = mainFrame
+
+-- Helper function
+local function createButton(tab, text, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.95, 0, 0, 35)
+    btn.Position = UDim2.new(0.025, 0, 0, #buttonFrame:GetChildren() * 40)
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextScaled = true
+    btn.BorderSizePixel = 2
+    btn.Parent = buttonFrame
+    btn:SetAttribute("Tab", tab)
+    btn.Visible = (tab == currentTab)
+    btn.MouseButton1Click:Connect(callback)
+end
+
+-- Roleplay Buttons
+createButton("Roleplay", "Infinite Yield", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+end)
+createButton("Roleplay", "Dex Explorer", function()
+    loadstring(game:HttpGet("https://cdn.wearedevs.net/scripts/Dex%20Explorer.txt"))()
+end)
+
+-- Troll Buttons
+createButton("Troll", "Fling All", function()
+    print("Fling All Activated")
+end)
+createButton("Troll", "Wicked Menu", function()
+    print("Wicked Activated")
+end)
+
+-- Guns Buttons (Dupe Guns example)
+createButton("Guns", "Get Glock-17", function()
+    print("Give Glock-17")
+end)
+createButton("Guns", "Get AK-47", function()
+    print("Give AK-47")
+end)
+
+-- EXP Tab: Track
+local trackingEnabled = false
+local beams = {}
+local nameTags = {}
+
+local function createBeam(target)
+    local char = player.Character
+    local tChar = target.Character
+    if not char or not tChar then return end
+
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local thrp = tChar:FindFirstChild("HumanoidRootPart")
+    if not hrp or not thrp then return end
+
+    local att1 = Instance.new("Attachment", hrp)
+    local att2 = Instance.new("Attachment", thrp)
+
+    local beam = Instance.new("Beam")
+    beam.Attachment0 = att1
+    beam.Attachment1 = att2
+    beam.Color = ColorSequence.new(Color3.fromRGB(255, 255, 0))
+    beam.Width0 = 0.2
+    beam.Width1 = 0.2
+    beam.Parent = hrp
+
+    beams[target] = {beam = beam, att1 = att1, att2 = att2}
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Size = UDim2.new(0, 100, 0, 30)
+    billboard.Adornee = thrp
+    billboard.AlwaysOnTop = true
+    billboard.Parent = tChar
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextScaled = true
+    label.Text = target.Name
+    label.Parent = billboard
+
+    nameTags[target] = billboard
+end
+
+local function clearTracking()
+    for plr, data in pairs(beams) do
+        if data.beam then data.beam:Destroy() end
+        if data.att1 then data.att1:Destroy() end
+        if data.att2 then data.att2:Destroy() end
+    end
+    for plr, tag in pairs(nameTags) do
+        if tag then tag:Destroy() end
+    end
+    beams = {}
+    nameTags = {}
+end
+
+createButton("EXP", "Track", function()
+    trackingEnabled = not trackingEnabled
+    clearTracking()
+    if trackingEnabled then
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= player then
+                createBeam(plr)
+            end
+        end
+    end
+end)
+
+Players.PlayerAdded:Connect(function(plr)
+    if trackingEnabled and plr ~= player then
+        createBeam(plr)
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+    if beams[plr] then
+        clearTracking()
+    end
+end)
+
+-- Toggle with K key
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
     if input.KeyCode == Enum.KeyCode.K then
         mainFrame.Visible = not mainFrame.Visible
-        mobileToggle.Text = mainFrame.Visible and "Hide" or "Show"
     end
 end)
 
+-- Mobile Toggle
 local mobileToggle = Instance.new("TextButton")
-mobileToggle.Name = "MobileToggle"
-mobileToggle.Size = UDim2.new(0,72,0,26)
-mobileToggle.Position = UDim2.new(0.5,-36,0,6)
+mobileToggle.Size = UDim2.new(0, 80, 0, 25)
+mobileToggle.Position = UDim2.new(0.5, -40, 0, 5)
 mobileToggle.BackgroundTransparency = 1
-mobileToggle.Text = "Hide"
-mobileToggle.TextColor3 = Color3.fromRGB(255,255,255)
-mobileToggle.Font = Enum.Font.GothamBold
+mobileToggle.Text = "3KS"
+mobileToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
 mobileToggle.TextScaled = true
 mobileToggle.Parent = gui
+
 mobileToggle.MouseButton1Click:Connect(function()
     mainFrame.Visible = not mainFrame.Visible
-    mobileToggle.Text = mainFrame.Visible and "Hide" or "Show"
 end)
