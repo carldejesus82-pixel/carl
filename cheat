@@ -136,11 +136,7 @@ fpsLabelTop.TextColor3 = Color3.new(1,1,1)
 fpsLabelTop.BackgroundTransparency = 1
 fpsLabelTop.Parent = topBar
 
-RunService.RenderStepped:Connect(function()
-	fpsLabelTop.Text = "FPS: "..tostring(math.floor(1/RunService.RenderStepped:Wait()))
-end)
-
--- SCROLLABLE TABS
+-- Scrollable tabs
 local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
 local tabFrame = Instance.new("ScrollingFrame")
 tabFrame.Size = UDim2.new(1,0,0.1,0)
@@ -153,6 +149,7 @@ tabFrame.ScrollBarImageTransparency = 0.5
 tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.X
 tabFrame.Parent = mainGui
 
+local tabsButtons = {}
 for i, name in ipairs(tabNames) do
 	local tab = Instance.new("TextButton")
 	tab.Size = UDim2.new(0.22,0,1,0)
@@ -162,14 +159,93 @@ for i, name in ipairs(tabNames) do
 	tab.BackgroundColor3 = Color3.fromRGB(30,30,30)
 	tab.TextColor3 = Color3.new(1,1,1)
 	tab.Parent = tabFrame
+	tabsButtons[name] = tab
 end
 
--- DRAGGING MAIN GUI (PC + Mobile)
+-- Tab content frames
+local tabFramesContent = {}
+for name,_ in pairs(tabsButtons) do
+	local f = Instance.new("Frame")
+	f.Size = UDim2.new(1,0,0.6,0)
+	f.Position = UDim2.new(0,0,0.3,0)
+	f.BackgroundTransparency = 1
+	f.Visible = false
+	f.Parent = mainGui
+	tabFramesContent[name] = f
+end
+tabFramesContent["ROLEPLAY"].Visible = true
+
+for name, button in pairs(tabsButtons) do
+	button.MouseButton1Click:Connect(function()
+		for _, f in pairs(tabFramesContent) do
+			f.Visible = false
+		end
+		tabFramesContent[name].Visible = true
+	end)
+end
+
+-- Track button in MATA tab
+local Drawings = {}
+local mataContent = tabFramesContent["MATA"]
+local trackBtn = Instance.new("TextButton")
+trackBtn.Size = UDim2.new(0.8,0,0.1,0)
+trackBtn.Position = UDim2.new(0.1,0,0.05,0)
+trackBtn.Text = "Track"
+trackBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+trackBtn.TextColor3 = Color3.new(1,1,1)
+trackBtn.TextScaled = true
+trackBtn.Parent = mataContent
+
+trackBtn.MouseButton1Click:Connect(function()
+	for _, line in pairs(Drawings) do
+		line:Remove()
+	end
+	Drawings = {}
+	for _, otherPlayer in pairs(Players:GetPlayers()) do
+		if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			local line = Drawing.new("Line")
+			line.From = workspace.CurrentCamera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
+			line.To = workspace.CurrentCamera:WorldToViewportPoint(otherPlayer.Character.HumanoidRootPart.Position)
+			line.Color = Color3.new(1,1,1)
+			line.Thickness = 1
+			line.Transparency = 0.5
+			line.Visible = true
+			table.insert(Drawings, line)
+
+			local billboard = Instance.new("BillboardGui")
+			billboard.Size = UDim2.new(0,100,0,30)
+			billboard.Adornee = otherPlayer.Character.HumanoidRootPart
+			billboard.AlwaysOnTop = true
+			billboard.Parent = screengui
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.new(1,0,1,0)
+			label.Text = otherPlayer.Name
+			label.TextScaled = true
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1,1,1)
+			label.Parent = billboard
+		end
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+	for i, otherPlayer in pairs(Players:GetPlayers()) do
+		if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			local line = Drawings[i]
+			if line then
+				line.From = workspace.CurrentCamera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
+				line.To = workspace.CurrentCamera:WorldToViewportPoint(otherPlayer.Character.HumanoidRootPart.Position)
+			end
+		end
+	end
+end)
+
+-- Dragging main GUI (PC & Mobile)
 local dragging = false
 local dragInput
 local dragStart
 local startPos
-
 local function update(input)
 	local delta = input.Position - dragStart
 	mainGui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
@@ -200,14 +276,14 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- TOGGLE GUI WITH K
+-- Toggle GUI with K
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if not gpe and input.KeyCode == Enum.KeyCode.K then
 		mainGui.Visible = not mainGui.Visible
 	end
 end)
 
--- PROGRESS BAR LOGIC
+-- Progress bar animation
 task.spawn(function()
 	for i = 1, 100 do
 		bar.Size = UDim2.new(i/100,0,1,0)
