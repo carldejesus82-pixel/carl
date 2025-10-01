@@ -8,7 +8,6 @@ screengui.Name = "KAZO_UI"
 screengui.IgnoreGuiInset = true
 screengui.Parent = player:WaitForChild("PlayerGui")
 
--- COVER FRAME
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(1,0,1,0)
 frame.Position = UDim2.new(0,0,0,0)
@@ -34,8 +33,8 @@ title.BackgroundTransparency = 1
 title.Parent = frame
 
 local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(0.2,0,0.05,0)
-fpsLabel.Position = UDim2.new(0.8,0,0.95,0)
+fpsLabel.Size = UDim2.new(0.15,0,0.05,0)
+fpsLabel.Position = UDim2.new(0.85,0,0.95,0)
 fpsLabel.Text = "FPS: 0"
 fpsLabel.TextScaled = true
 fpsLabel.Font = Enum.Font.SourceSans
@@ -44,7 +43,7 @@ fpsLabel.BackgroundTransparency = 1
 fpsLabel.Parent = frame
 
 local avatar = Instance.new("ImageLabel")
-avatar.Size = UDim2.new(0.1,0,0.2,0)
+avatar.Size = UDim2.new(0.08,0,0.15,0)
 avatar.Position = UDim2.new(0.05,0,0.7,0)
 avatar.BackgroundTransparency = 1
 local thumb = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
@@ -52,8 +51,8 @@ avatar.Image = thumb
 avatar.Parent = frame
 
 local percentLabel = Instance.new("TextLabel")
-percentLabel.Size = UDim2.new(0.2,0,0.05,0)
-percentLabel.Position = UDim2.new(0.4,0,0.85,0)
+percentLabel.Size = UDim2.new(0.15,0,0.04,0)
+percentLabel.Position = UDim2.new(0.425,0,0.85,0)
 percentLabel.Text = "0%"
 percentLabel.TextScaled = true
 percentLabel.Font = Enum.Font.SourceSansBold
@@ -62,8 +61,8 @@ percentLabel.BackgroundTransparency = 1
 percentLabel.Parent = frame
 
 local barContainer = Instance.new("Frame")
-barContainer.Size = UDim2.new(0.4,0,0.015,0)
-barContainer.Position = UDim2.new(0.3,0,0.82,0)
+barContainer.Size = UDim2.new(0.35,0,0.015,0)
+barContainer.Position = UDim2.new(0.325,0,0.82,0)
 barContainer.BackgroundColor3 = Color3.fromRGB(80,80,80)
 barContainer.BorderSizePixel = 0
 barContainer.Parent = frame
@@ -89,21 +88,19 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- MAIN GUI
 local mainGui = Instance.new("Frame")
-mainGui.Size = UDim2.new(0.6,0,0.7,0)
-mainGui.Position = UDim2.new(0.2,0,0.15,0)
+mainGui.Size = UDim2.new(0.45,0,0.55,0)
+mainGui.Position = UDim2.new(0.275,0,0.2,0)
 mainGui.BackgroundColor3 = Color3.fromRGB(0,0,0)
 mainGui.Visible = false
 mainGui.Parent = screengui
 
 local stroke = Instance.new("UIStroke")
-stroke.Thickness = 3
+stroke.Thickness = 2
 stroke.Color = Color3.new(1,1,1)
 stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 stroke.Parent = mainGui
 
--- TOP BAR
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(1,0,0.1,0)
 topBar.BackgroundColor3 = Color3.fromRGB(0,0,0)
@@ -120,8 +117,8 @@ topTitle.BackgroundTransparency = 1
 topTitle.Parent = topBar
 
 local avatarThumbTop = Instance.new("ImageLabel")
-avatarThumbTop.Size = UDim2.new(0.08,0,0.8,0)
-avatarThumbTop.Position = UDim2.new(0.01,0,0.1,0)
+avatarThumbTop.Size = UDim2.new(0.06,0,0.7,0)
+avatarThumbTop.Position = UDim2.new(0.01,0,0.15,0)
 avatarThumbTop.BackgroundTransparency = 1
 avatarThumbTop.Image = thumb
 avatarThumbTop.Parent = topBar
@@ -136,7 +133,6 @@ fpsLabelTop.TextColor3 = Color3.new(1,1,1)
 fpsLabelTop.BackgroundTransparency = 1
 fpsLabelTop.Parent = topBar
 
--- Scrollable tabs
 local tabNames = {"ROLEPLAY","TROLL","MATA","DUPES"}
 local tabFrame = Instance.new("ScrollingFrame")
 tabFrame.Size = UDim2.new(1,0,0.1,0)
@@ -162,7 +158,6 @@ for i, name in ipairs(tabNames) do
 	tabsButtons[name] = tab
 end
 
--- Tab content frames
 local tabFramesContent = {}
 for name,_ in pairs(tabsButtons) do
 	local f = Instance.new("Frame")
@@ -184,9 +179,6 @@ for name, button in pairs(tabsButtons) do
 	end)
 end
 
--- Track button in MATA tab
-local Drawings = {}
-local mataContent = tabFramesContent["MATA"]
 local trackBtn = Instance.new("TextButton")
 trackBtn.Size = UDim2.new(0.8,0,0.1,0)
 trackBtn.Position = UDim2.new(0.1,0,0.05,0)
@@ -194,54 +186,71 @@ trackBtn.Text = "Track"
 trackBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
 trackBtn.TextColor3 = Color3.new(1,1,1)
 trackBtn.TextScaled = true
-trackBtn.Parent = mataContent
+trackBtn.Parent = tabFramesContent["MATA"]
 
-trackBtn.MouseButton1Click:Connect(function()
-	for _, line in pairs(Drawings) do
-		line:Remove()
-	end
-	Drawings = {}
-	for _, otherPlayer in pairs(Players:GetPlayers()) do
-		if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
-			local line = Drawing.new("Line")
-			line.From = workspace.CurrentCamera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
-			line.To = workspace.CurrentCamera:WorldToViewportPoint(otherPlayer.Character.HumanoidRootPart.Position)
-			line.Color = Color3.new(1,1,1)
-			line.Thickness = 1
-			line.Transparency = 0.5
-			line.Visible = true
-			table.insert(Drawings, line)
+local espEnabled = false
 
-			local billboard = Instance.new("BillboardGui")
-			billboard.Size = UDim2.new(0,100,0,30)
-			billboard.Adornee = otherPlayer.Character.HumanoidRootPart
-			billboard.AlwaysOnTop = true
-			billboard.Parent = screengui
-
-			local label = Instance.new("TextLabel")
-			label.Size = UDim2.new(1,0,1,0)
-			label.Text = otherPlayer.Name
-			label.TextScaled = true
-			label.BackgroundTransparency = 1
-			label.TextColor3 = Color3.new(1,1,1)
-			label.Parent = billboard
+local function clearESP()
+	for _, obj in pairs(workspace:GetDescendants()) do
+		if obj:IsA("BillboardGui") or obj:IsA("Beam") or obj:IsA("Attachment") then
+			if obj.Name == "ESP_Label" or obj.Name == "ESP_Beam" then
+				obj:Destroy()
+			end
 		end
 	end
-end)
+end
 
-RunService.RenderStepped:Connect(function()
-	for i, otherPlayer in pairs(Players:GetPlayers()) do
+trackBtn.MouseButton1Click:Connect(function()
+	espEnabled = not espEnabled
+	if not espEnabled then
+		clearESP()
+		return
+	end
+	for _, otherPlayer in pairs(Players:GetPlayers()) do
 		if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
-			local line = Drawings[i]
-			if line then
-				line.From = workspace.CurrentCamera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
-				line.To = workspace.CurrentCamera:WorldToViewportPoint(otherPlayer.Character.HumanoidRootPart.Position)
+			local targetHRP = otherPlayer.Character.HumanoidRootPart
+			local localHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			if localHRP then
+				local att0 = Instance.new("Attachment")
+				att0.Name = "ESP_Beam"
+				att0.Position = Vector3.new(0,0,0)
+				att0.Parent = localHRP
+
+				local att1 = Instance.new("Attachment")
+				att1.Name = "ESP_Beam"
+				att1.Position = Vector3.new(0,0,0)
+				att1.Parent = targetHRP
+
+				local beam = Instance.new("Beam")
+				beam.Name = "ESP_Beam"
+				beam.Attachment0 = att0
+				beam.Attachment1 = att1
+				beam.Color = ColorSequence.new(Color3.new(1,1,1))
+				beam.Width0 = 0.08
+				beam.Width1 = 0.08
+				beam.FaceCamera = true
+				beam.Transparency = NumberSequence.new(0)
+				beam.Parent = localHRP
+
+				local billboard = Instance.new("BillboardGui")
+				billboard.Name = "ESP_Label"
+				billboard.Adornee = targetHRP
+				billboard.Size = UDim2.new(0,80,0,25)
+				billboard.AlwaysOnTop = true
+				billboard.Parent = targetHRP
+
+				local label = Instance.new("TextLabel")
+				label.Size = UDim2.new(1,0,1,0)
+				label.Text = otherPlayer.Name
+				label.TextScaled = true
+				label.BackgroundTransparency = 1
+				label.TextColor3 = Color3.new(1,1,1)
+				label.Parent = billboard
 			end
 		end
 	end
 end)
 
--- Dragging main GUI (PC & Mobile)
 local dragging = false
 local dragInput
 local dragStart
@@ -276,19 +285,17 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- Toggle GUI with K
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if not gpe and input.KeyCode == Enum.KeyCode.K then
 		mainGui.Visible = not mainGui.Visible
 	end
 end)
 
--- Progress bar animation
 task.spawn(function()
-	for i = 1, 100 do
+	for i = 1,100 do
 		bar.Size = UDim2.new(i/100,0,1,0)
 		percentLabel.Text = i.."%"
-		task.wait(0.2)
+		task.wait(0.05)
 	end
 	frame:Destroy()
 	mainGui.Visible = true
